@@ -42,25 +42,18 @@ WhatsApp does not offer a single “export everything” button. Critical chats 
 
 ## Run the app
 
-### Packaged desktop app (no Node.js)
-
-Build artifacts live in `release/` after `npm run build:binaries`, or on a GitHub Release if you publish one.
+Use a packaged app from a [GitHub Release](https://github.com/abhay447/whatsapp-archive-viewer/releases) when one is available, or from a `release/` folder someone built for you.
 
 - **Windows:** unzip `whatsapp-archive-viewer-win-x64.zip` into its own folder, then double-click **WhatsApp Archive Viewer.exe**. Leave the other unzipped files next to the `.exe`.
 - **Linux:** `chmod +x` the `.AppImage` and run it, or extract `whatsapp-archive-viewer-linux-x64.tar.gz` and run **WhatsApp Archive Viewer**.
 
 A desktop window opens. It does not use your web browser.
 
-### From source
+If you cloned this repository instead of downloading a packaged app:
 
 1. Install [Node.js 22 or newer](https://nodejs.org).
 2. Double-click `start.bat` on Windows, or run `./start.sh` on Linux/macOS.
-3. The first launch runs `npm install` and may take a minute. A desktop window opens.
-
-```bash
-npm install
-npm start
-```
+3. The first launch installs what it needs and may take a minute. A desktop window opens.
 
 ### Open your export folder
 
@@ -69,7 +62,7 @@ npm start
 3. If a system folder window does not appear, paste the full path and click **Open this folder**.
 4. Wait while chats are indexed. Large archives with media can take a few minutes the first time.
 
-The folder is remembered. Next time, start the app again. New or changed ZIPs are picked up incrementally.
+The folder is remembered. Next time, start the app again. New or changed ZIPs are picked up automatically.
 
 ## What you can do
 
@@ -94,50 +87,27 @@ The Android export is incomplete by design. This app can only show what WhatsApp
 | Blank lines with no file (view-once media, many stickers, polls, live location, expired disappearing messages, and similar) | Label: *This message is not supported* — the payload was never in the ZIP |
 | Duplicate ZIP of the same chat | One copy is kept; the other is skipped |
 
-This app does **not** log into WhatsApp, restore chats onto iOS, merge into a new Android install, or decrypt Google Drive / iCloud backups.
+This app does **not** log into WhatsApp, restore chats onto an iPhone, merge into a new Android install, or decrypt Google Drive / iCloud backups.
 
 ## Privacy
 
 - Processing is local. Chat text and media are not sent to a server.
-- The app listens only on `127.0.0.1` (localhost).
-- After install/build, it does not need the internet.
-- Index data (SQLite, settings, a media cache of files you actually opened) stays on this machine, **not** inside your ZIP folder and **not** next to the app source or the packaged `.exe` / AppImage.
+- The app only talks to itself on this computer (`localhost`).
+- After it is installed, it does not need the internet.
+- Search index, settings, and a cache of files you actually opened stay on this machine. They are **not** stored inside your ZIP folder and **not** next to the app files.
 
-Index location:
+Where that index lives:
 
 - Windows: `%APPDATA%\WhatsAppArchiveViewer`
 - macOS: `~/Library/Application Support/WhatsAppArchiveViewer`
 - Linux: `~/.config/whatsapp-archive-viewer`
 
-Keep the original ZIP folder. The index points at those files; deleting the ZIPs breaks media.
+Keep the original ZIP folder. The index points at those files; deleting the ZIPs breaks photos and other media.
 
 ## If something goes wrong
 
-- **Folder not found:** the export folder was moved or renamed. Pick it again in Settings.
-- **A chat was skipped:** open the import report for the reason. Other chats still import.
+- **Folder not found:** the export folder was moved or renamed. Choose it again from Settings.
+- **A chat was skipped:** open the import report and read the reason. Other chats still import.
 - **Port already in use:** another copy of the app is still running. Close it and start again.
 - **Windows `.exe` does nothing if copied alone:** unzip the whole zip into one folder and run it from there.
-- **Node.js is missing** (source install): install it from https://nodejs.org and run `start.bat` / `start.sh` again.
-
-## Rebuild packaged apps
-
-```bash
-npm install
-npm run build:binaries
-```
-
-Outputs go to `release/` (Windows zip, Linux AppImage and tar.gz). Those files are not committed to git.
-
-## For developers
-
-```bash
-npm install
-npm test
-npm start
-```
-
-- `npm start` — desktop window (Electron) wrapping the local server
-- `npm run start:server` — API + UI at `http://127.0.0.1:4783` in a browser
-- `npm run dev` — live-reloading frontend with the local API
-
-Requires Node.js 22+ (`node:sqlite`).
+- **“Node.js is not installed”:** install it from https://nodejs.org and run `start.bat` or `start.sh` again.
