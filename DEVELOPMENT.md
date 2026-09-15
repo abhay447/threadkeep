@@ -74,6 +74,22 @@ Windows: keep the unzipped `.exe` next to its DLLs. Linux: `chmod +x` the AppIma
 
 Cross-building Windows from Linux depends on electron-builder’s wine/nsis setup on the machine.
 
+Linux-only or Windows-only:
+
+```bash
+node scripts/package-binaries.mjs --linux AppImage tar.gz
+node scripts/package-binaries.mjs --win zip
+```
+
+## GitHub release
+
+Push an annotated version tag. GitHub Actions builds the apps and publishes them on the Releases page.
+
+```bash
+git tag -a v1.0.0 -m "WhatsApp Archive Viewer 1.0.0"
+git push origin v1.0.0
+```
+
 ## Import notes
 
 - Incremental import skips unchanged ZIPs (content hash). Parser changes that should re-parse existing chats need a wipe of the data dir, then a reindex.

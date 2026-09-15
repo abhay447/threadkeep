@@ -42,8 +42,20 @@ run(
   ].join(" "),
 );
 
-process.stdout.write("Packaging Windows and Linux desktop apps…\n");
-run("npx electron-builder --linux AppImage tar.gz --win zip --x64 --publish never");
+const builderArgs = process.argv.slice(2);
+const electronBuilder = [
+  "npx electron-builder",
+  ...(builderArgs.length ? builderArgs : ["--linux", "AppImage", "tar.gz", "--win", "zip"]),
+];
+if (!electronBuilder.includes("--x64") && !electronBuilder.includes("--arm64")) {
+  electronBuilder.push("--x64");
+}
+if (!electronBuilder.includes("--publish")) {
+  electronBuilder.push("--publish", "never");
+}
+
+process.stdout.write("Packaging desktop apps…\n");
+run(electronBuilder.join(" "));
 
 const readme = `WhatsApp Archive Viewer
 
