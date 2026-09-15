@@ -17,9 +17,13 @@ async function json<T>(res: Response | Promise<Response>): Promise<T> {
 
 export const api = {
   status: () => json<AppStatus>(fetch("/api/status")),
-  selectFolder: () =>
+  selectFolder: (folderPath?: string) =>
     json<{ archivePath: string }>(
-      fetch("/api/select-folder", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
+      fetch("/api/select-folder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(folderPath ? { path: folderPath } : {}),
+      }),
     ),
   startImport: () =>
     json<{ started: boolean; alreadyRunning?: boolean }>(

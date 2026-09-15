@@ -353,24 +353,27 @@ const MESSAGE_SELECT = `
          a.omitted AS att_omitted,
          a.type AS att_type
   FROM messages m
-  LEFT JOIN attachments a ON a.message_id = m.id
+  LEFT JOIN attachments a ON a.id = (
+    SELECT MIN(id) FROM attachments WHERE message_id = m.id
+  )
 `;
 
 export function getMessages(chatId: number, offset: number, limit: number): MessageRow[] {
+  const startSeq = Math.max(0, offset);
+  const endSeq = startSeq + Math.max(0, limit);
   const rows = getDb()
     .prepare(
       `${MESSAGE_SELECT}
-       WHERE m.chat_id = ?
-       ORDER BY m.seq ASC
-       LIMIT ? OFFSET ?`,
+       WHERE m.chat_id = ? AND m.seq >= ? AND m.seq < ?
+       ORDER BY m.seq ASC`,
     )
-    .all(chatId, limit, offset) as Array<Record<string, unknown>>;
+    .all(chatId, startSeq, endSeq) as Array<Record<string, unknown>>;
 
   let previous: number | null = null;
-  if (offset > 0 && rows.length) {
+  if (startSeq > 0) {
     const prev = getDb()
       .prepare("SELECT timestamp FROM messages WHERE chat_id = ? AND seq = ?")
-      .get(chatId, offset - 1) as { timestamp: number } | undefined;
+      .get(chatId, startSeq - 1) as { timestamp: number } | undefined;
     previous = prev ? prev.timestamp : null;
   }
   return rows.map((row) => {

@@ -31,8 +31,8 @@ if not exist "node_modules" (
 
 echo Starting WhatsApp Archive Viewer...
 call npm start
-echo.
-pause
+if %errorlevel% neq 0 pause
+goto end
 
 :end
 endlocal

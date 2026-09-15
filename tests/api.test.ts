@@ -58,6 +58,13 @@ describe("app flows", () => {
     return status.body;
   }
 
+  it("accepts a pasted folder path without a system picker", async () => {
+    delete process.env.WA_ALLOW_PATH;
+    const select = await request(app).post("/api/select-folder").send({ path: archiveDir });
+    expect(select.status).toBe(200);
+    expect(select.body.archivePath).toBe(archiveDir);
+  });
+
   it("selects an archive folder and indexes chats", async () => {
     const status = await importFolder(archiveDir);
     expect(status.folder).toBe("ready");

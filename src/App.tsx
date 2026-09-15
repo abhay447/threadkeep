@@ -13,7 +13,7 @@ export default function App() {
   const [chatQuery, setChatQuery] = useState("");
   const [activeId, setActiveId] = useState<number | null>(null);
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<"off" | "picker" | "path">("off");
   const [progress, setProgress] = useState<ImportProgress | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -160,18 +160,26 @@ export default function App() {
 
   const activeChat = useMemo(() => chats.find((chat) => chat.id === activeId) || null, [chats, activeId]);
 
-  const chooseFolder = async () => {
-    setBusy(true);
+  const chooseFolder = async (folderPath?: string) => {
+    const started = Date.now();
+    setBusy(folderPath ? "path" : "picker");
     setError("");
     try {
-      await api.selectFolder();
+      await api.selectFolder(folderPath);
       setScreen("importing");
       await api.startImport();
     } catch (err) {
-      if (err instanceof Error && err.message === "cancelled") return;
+      if (err instanceof Error && err.message === "cancelled") {
+        if (!folderPath && Date.now() - started < 2000) {
+          setError(
+            "Could not open a folder window. It may be behind this app. Check the taskbar, or paste the folder path below.",
+          );
+        }
+        return;
+      }
       setError(err instanceof Error ? err.message : "Could not select that folder");
     } finally {
-      setBusy(false);
+      setBusy("off");
     }
   };
 
@@ -203,12 +211,13 @@ export default function App() {
   }
   if (screen === "missing") {
     return (
-      <Centered
+      <Welcome
         title="Your WhatsApp archive folder could not be found."
         body={status?.archivePath || "The previously selected folder is missing."}
-        action="Select New Folder"
-        onAction={chooseFolder}
+        browseLabel="Select New Folder"
+        onSelect={chooseFolder}
         busy={busy}
+        error={error}
       />
     );
   }
@@ -217,7 +226,7 @@ export default function App() {
   }
 
   return (
-    <div className={`flex h-full bg-[#d1d7db] dark:bg-black ${mobileChatOpen ? "sidebar-collapsed" : "sidebar-open"}`}>
+    <div className={`flex h-full bg-wa-shell text-wa-ink dark:bg-wa-shell-dark dark:text-wa-ink-dark ${mobileChatOpen ? "sidebar-collapsed" : "sidebar-open"}`}>
       {progress && (progress.phase === "scan" || progress.phase === "index") ? (
         <div className="fixed left-0 right-0 top-0 z-20 bg-wa-green px-4 py-1 text-center text-xs text-white">
           Updating archive… {progress.percent}%{progress.total ? ` (${progress.current}/${progress.total})` : ""}
@@ -225,9 +234,9 @@ export default function App() {
       ) : null}
       <div className="mx-auto flex h-full w-full max-w-[1600px] overflow-hidden bg-wa-panel shadow-xl dark:bg-wa-panel-dark">
         <aside className="sidebar flex w-full max-w-[420px] flex-col border-r border-wa-line dark:border-wa-line-dark md:w-[38%]">
-          <div className="flex h-[60px] items-center justify-between bg-wa-header px-4 dark:bg-wa-header-dark">
+          <div className="flex h-[60px] items-center justify-between bg-wa-header px-4 text-wa-ink dark:bg-wa-header-dark dark:text-wa-ink-dark">
             <div>
-              <div className="font-semibold">WhatsApp Archive</div>
+              <div className="font-semibold text-wa-ink dark:text-wa-ink-dark">WhatsApp Archive</div>
               <div className="text-xs text-wa-muted dark:text-wa-muted-dark">
                 {status?.stats.chats.toLocaleString()} chats · local only
               </div>
@@ -254,7 +263,7 @@ export default function App() {
           </div>
           <div className="bg-wa-panel px-3 py-2 dark:bg-wa-panel-dark">
             <input
-              className="w-full rounded-lg bg-wa-search px-3 py-2 text-sm outline-none dark:bg-wa-search-dark"
+              className="w-full rounded-lg bg-wa-search px-3 py-2 text-sm text-wa-ink outline-none placeholder:text-wa-muted dark:bg-wa-search-dark dark:text-wa-ink-dark dark:placeholder:text-wa-muted-dark"
               placeholder="Search chats"
               value={chatQuery}
               onChange={(event) => setChatQuery(event.target.value)}
@@ -268,7 +277,7 @@ export default function App() {
                 <button
                   key={chat.id}
                   className={`flex w-full items-center gap-3 border-b border-wa-line px-3 py-3 text-left hover:bg-black/5 dark:border-wa-line-dark dark:hover:bg-white/5 ${
-                    chat.id === activeId ? "bg-[#f0f2f5] dark:bg-[#2a3942]" : ""
+                    chat.id === activeId ? "bg-wa-header dark:bg-[#2a3942]" : ""
                   }`}
                   onClick={() => {
                     setActiveId(chat.id);
@@ -285,8 +294,8 @@ export default function App() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <div className="truncate font-medium">{chat.name}</div>
-                      <div className="shrink-0 text-[12px] text-wa-muted">{formatChatListTime(chat.lastMessageAt)}</div>
+                      <div className="truncate font-medium text-wa-ink dark:text-wa-ink-dark">{chat.name}</div>
+                      <div className="shrink-0 text-[12px] text-wa-muted dark:text-wa-muted-dark">{formatChatListTime(chat.lastMessageAt)}</div>
                     </div>
                     <div className="truncate text-sm text-wa-muted dark:text-wa-muted-dark">
                       {chat.lastMessageSender && chat.isGroup ? `${chat.lastMessageSender}: ` : ""}
@@ -314,10 +323,10 @@ export default function App() {
             }}
           />
         ) : (
-          <div className="conversation hidden flex-1 items-center justify-center bg-[#f0f2f5] text-wa-muted md:flex dark:bg-wa-bg-dark">
+          <div className="conversation hidden flex-1 items-center justify-center bg-wa-bg text-wa-muted md:flex dark:bg-wa-bg-dark dark:text-wa-muted-dark">
             <div className="max-w-md px-8 text-center">
               <div className="mb-3 text-3xl">💬</div>
-              <h2 className="mb-2 text-2xl font-light text-slate-700 dark:text-slate-200">Select a chat</h2>
+              <h2 className="mb-2 text-2xl font-light text-wa-ink dark:text-wa-ink-dark">Select a chat</h2>
               <p className="text-sm">
                 Your archive is processed locally on this computer. No chat data is uploaded or sent to the internet.
               </p>
@@ -334,9 +343,14 @@ export default function App() {
             <div>
               <div className="mb-1 font-medium">Archive folder</div>
               <div className="break-all rounded-lg bg-black/5 px-3 py-2 dark:bg-white/5">{status.archivePath}</div>
-              <button className="mt-2 text-wa-green-dark dark:text-wa-accent" onClick={chooseFolder}>
-                Change folder
+              <button className="mt-2 text-wa-green-dark dark:text-wa-accent" onClick={() => chooseFolder()}>
+                Browse for a folder
               </button>
+              <FolderPathForm
+                busy={busy}
+                onOpen={(folderPath) => chooseFolder(folderPath)}
+                placeholder="Or paste a folder path"
+              />
             </div>
             <div>
               <div className="mb-1 font-medium">Appearance</div>
@@ -456,30 +470,93 @@ export default function App() {
   );
 }
 
-function Welcome({ onSelect, busy, error }: { onSelect: () => void; busy: boolean; error: string }) {
+function Welcome({
+  onSelect,
+  busy,
+  error,
+  title = "WhatsApp Archive",
+  body = "Browse your exported WhatsApp chats privately on this computer.",
+  browseLabel = "Select WhatsApp Archive Folder",
+}: {
+  onSelect: (folderPath?: string) => void;
+  busy: "off" | "picker" | "path";
+  error: string;
+  title?: string;
+  body?: string;
+  browseLabel?: string;
+}) {
+  const pickerOpen = busy === "picker";
+  const pathOpen = busy === "path";
   return (
     <div className="flex h-full items-center justify-center bg-wa-bg dark:bg-wa-bg-dark">
-      <div className="max-w-lg rounded-2xl bg-white p-10 text-center shadow-xl dark:bg-wa-panel-dark">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-10 text-center text-wa-ink shadow-xl dark:bg-wa-panel-dark dark:text-wa-ink-dark">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-wa-green text-3xl text-white">
           💬
         </div>
-        <h1 className="mb-3 text-3xl font-light">WhatsApp Archive</h1>
-        <p className="mb-2 text-wa-muted dark:text-wa-muted-dark">
-          Browse your exported WhatsApp chats privately on this computer.
-        </p>
+        <h1 className="mb-3 text-3xl font-light text-wa-ink dark:text-wa-ink-dark">{title}</h1>
+        <p className="mb-2 break-all text-wa-muted dark:text-wa-muted-dark">{body}</p>
         <p className="mb-6 text-sm text-wa-muted dark:text-wa-muted-dark">
           Your data stays on this computer and is never uploaded.
         </p>
         <button
           className="rounded-full bg-wa-green px-5 py-2.5 font-medium text-white disabled:opacity-60"
-          onClick={onSelect}
-          disabled={busy}
+          onClick={() => onSelect()}
+          disabled={busy !== "off"}
         >
-          {busy ? "Opening folder picker…" : "Select WhatsApp Archive Folder"}
+          {pickerOpen ? "Look for the folder window…" : pathOpen ? "Opening…" : browseLabel}
         </button>
+        <p className="mt-5 text-xs text-wa-muted dark:text-wa-muted-dark">
+          A folder window should open. If it does not, paste the folder path below.
+        </p>
+        <FolderPathForm busy={busy} onOpen={(folderPath) => onSelect(folderPath)} />
         {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
       </div>
     </div>
+  );
+}
+
+function FolderPathForm({
+  busy,
+  onOpen,
+  placeholder = "Folder path, for example C:\\Users\\You\\WhatsApp export",
+}: {
+  busy: "off" | "picker" | "path";
+  onOpen: (folderPath: string) => void;
+  placeholder?: string;
+}) {
+  const [folderPath, setFolderPath] = useState("");
+  const locked = busy === "path";
+  return (
+    <form
+      className="mt-3 text-left"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const next = folderPath.trim();
+        if (!next || locked) return;
+        onOpen(next);
+      }}
+    >
+      <label className="sr-only" htmlFor="archive-folder-path">
+        Archive folder path
+      </label>
+      <input
+        id="archive-folder-path"
+        className="w-full rounded-lg bg-black/5 px-3 py-2 text-sm outline-none dark:bg-white/10"
+        placeholder={placeholder}
+        value={folderPath}
+        onChange={(event) => setFolderPath(event.target.value)}
+        disabled={locked}
+        autoComplete="off"
+        spellCheck={false}
+      />
+      <button
+        type="submit"
+        className="mt-2 w-full rounded-full border border-wa-green px-5 py-2 text-sm font-medium text-wa-green-dark disabled:opacity-60 dark:text-wa-accent"
+        disabled={locked || !folderPath.trim()}
+      >
+        {locked ? "Opening…" : "Open this folder"}
+      </button>
+    </form>
   );
 }
 

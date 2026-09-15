@@ -6,4 +6,6 @@ dist/
 coverage/
 .cache/
 .localdata/
+build/
+release/
 *.tmp

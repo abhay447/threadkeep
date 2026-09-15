@@ -1,11 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { createServer } from "node:http";
 import express from "express";
-import { build } from "vite";
 import { loadConfig, saveConfig } from "./config.js";
-import { FolderPickCancelled, pickFolder } from "./folderPicker.js";
+import { cancelFolderPick, FolderPickCancelled, pickFolder } from "./folderPicker.js";
 import {
   getChat,
   getDb,
@@ -19,29 +17,21 @@ import {
 } from "./db.js";
 import { getImportProgress, importArchive, isImportRunning, subscribeImport } from "./importer.js";
 import { materializeAttachment } from "./media.js";
-import { toLocalFilesystemPath } from "./paths.js";
+import { frontendDir, resolveExistingPath, toLocalFilesystemPath } from "./paths.js";
+import { getEmbeddedFile, hasEmbeddedUi } from "./staticFiles.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT = path.resolve(__dirname, "..");
 const PORT = Number(process.env.PORT || 4783);
 const HOST = "127.0.0.1";
 
-async function ensureFrontend(): Promise<void> {
-  const dist = path.join(ROOT, "dist", "index.html");
-  if (fs.existsSync(dist)) return;
-  if (process.env.WA_SKIP_BUILD === "1") return;
-  process.stdout.write("Preparing the app for first use. This only happens once…\n");
-  await build({
-    root: ROOT,
-    logLevel: "error",
-  });
+export function listenUrl(): string {
+  return `http://${HOST}:${PORT}`;
 }
 
 function folderStatus(archivePath: string | null): "none" | "missing" | "ready" {
   if (!archivePath) return "none";
   try {
-    if (fs.existsSync(archivePath) && fs.statSync(archivePath).isDirectory()) return "ready";
+    const resolved = resolveExistingPath(archivePath);
+    if (fs.existsSync(resolved) && fs.statSync(resolved).isDirectory()) return "ready";
   } catch {
     return "missing";
   }
@@ -87,8 +77,10 @@ export async function createApp() {
   app.post("/api/select-folder", async (req, res) => {
     try {
       let selected: string;
-      if (process.env.WA_ALLOW_PATH === "1" && typeof req.body?.path === "string") {
-        selected = toLocalFilesystemPath(req.body.path);
+      const requested = typeof req.body?.path === "string" ? req.body.path.trim() : "";
+      if (requested) {
+        cancelFolderPick();
+        selected = toLocalFilesystemPath(requested);
       } else {
         selected = await pickFolder();
       }
@@ -224,12 +216,24 @@ export async function createApp() {
     }
   });
 
-  const distDir = path.join(ROOT, "dist");
-  if (fs.existsSync(path.join(distDir, "index.html"))) {
-    app.use(express.static(distDir));
-    app.get("*", (_req, res) => {
-      res.sendFile(path.join(distDir, "index.html"));
+  if (hasEmbeddedUi()) {
+    app.get("*", (req, res) => {
+      const file = getEmbeddedFile(req.path);
+      if (!file) {
+        res.status(404).send("Not found");
+        return;
+      }
+      res.setHeader("Content-Type", file.mime);
+      res.send(file.body);
     });
+  } else {
+    const distDir = frontendDir();
+    if (fs.existsSync(path.join(distDir, "index.html"))) {
+      app.use(express.static(distDir));
+      app.get("*", (_req, res) => {
+        res.sendFile(path.join(distDir, "index.html"));
+      });
+    }
   }
 
   return app;
@@ -244,25 +248,20 @@ async function openBrowser(url: string): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
-  if (process.env.WA_TEST_SERVER === "1") return;
-  await ensureFrontend();
+export async function startServer(): Promise<{ url: string }> {
+  if (process.env.WA_TEST_SERVER === "1") return { url: listenUrl() };
   const app = await createApp();
   const server = createServer(app);
-  server.listen(PORT, HOST, () => {
-    const url = `http://${HOST}:${PORT}`;
-    process.stdout.write(`WhatsApp Archive Viewer is running at ${url}\n`);
-    process.stdout.write("Your data stays on this computer and is never uploaded.\n");
-    if (process.env.WA_NO_OPEN !== "1") {
-      openBrowser(url).catch(() => undefined);
-    }
+  await new Promise<void>((resolve, reject) => {
+    server.listen(PORT, HOST, () => resolve());
+    server.on("error", reject);
   });
-}
-
-const isDirectRun = process.argv[1] && path.basename(process.argv[1]).startsWith("index");
-if (isDirectRun) {
-  main().catch((error) => {
-    process.stderr.write(`${error instanceof Error ? error.message : error}\n`);
-    process.exit(1);
-  });
+  const url = listenUrl();
+  process.stdout.write(`WhatsApp Archive Viewer is running at ${url}\n`);
+  process.stdout.write("Your data stays on this computer and is never uploaded.\n");
+  const inElectron = Boolean(process.versions.electron);
+  if (process.env.WA_NO_OPEN !== "1" && !inElectron) {
+    openBrowser(url).catch(() => undefined);
+  }
+  return { url };
 }

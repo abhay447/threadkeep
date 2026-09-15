@@ -65,6 +65,18 @@ describe("archive import", () => {
     expect(fs.existsSync(cache) ? fs.readdirSync(cache).length : 0).toBe(0);
   });
 
+  it("links ZIP photos to blank caption lines", async () => {
+    writeZip(path.join(archiveDir, "WhatsApp Chat with Eden.zip"), {
+      "WhatsApp Chat with Eden.txt": "18/08/25, 3:37 pm - Eden:\n18/08/25, 3:38 pm - Eden: caption",
+      "IMG-20250818-WA0020.jpg": new Uint8Array([0xff, 0xd8, 0xff, 0xd9]),
+    });
+    await importArchive(archiveDir);
+    const messages = getMessages(listChats()[0].id, 0, 10);
+    expect(messages[0].type).toBe("image");
+    expect(messages[0].attachment?.filename).toBe("IMG-20250818-WA0020.jpg");
+    expect(messages[1].text).toBe("caption");
+  });
+
   it("imports chats exported without media", async () => {
     writeZip(path.join(archiveDir, "WhatsApp Chat with Cara.zip"), {
       "WhatsApp Chat with Cara.txt": "15/09/26, 10:32 am - Cara: <Media omitted>\n15/09/26, 10:33 am - Cara: text only",

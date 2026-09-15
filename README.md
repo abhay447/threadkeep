@@ -1,41 +1,132 @@
 # WhatsApp Archive Viewer
 
-Browse your exported WhatsApp chats privately on this computer. Nothing is uploaded.
+A private, local desktop app for reading WhatsApp chats you exported from Android. It runs only on your computer. Nothing is uploaded.
 
-## How to use
+It is not WhatsApp, and it cannot send messages or copy chats onto an iPhone. It is a **failsafe reader** for ZIP files you exported yourself.
 
-1. Install [Node.js](https://nodejs.org) (version 22 or newer) if it is not already installed.
-2. Double-click `start.bat` on Windows, or run `./start.sh` on Mac/Linux.
-3. The first time, wait while it installs. A browser window will open.
-4. Click **Select WhatsApp Archive Folder**.
-5. Choose the folder that contains your WhatsApp ZIP files, for example `whatsapp_manual_export_folder`.
-6. Wait while chats are indexed. After that, you can search and read them like a chat app.
+## Why this exists
 
-Your folder choice is remembered. Next time, just start the app again.
+Apple’s **Move to iOS** app on Android is supposed to migrate WhatsApp data to an iPhone. That transfer often fails, finishes only in part, or leaves important threads missing.
 
-Open this address if the browser does not open by itself:
+If the automatic move does not work, you can still keep those chats:
 
-```text
-http://127.0.0.1:4783
-```
+1. On Android, **manually export** the chats that matter (WhatsApp → a chat → **More** → **Export chat**).
+2. Copy the ZIP files to a Windows or Linux PC (USB drive, cable, cloud folder you control, or a shared disk).
+3. Open this app and point it at that folder.
+
+You then have a searchable, WhatsApp-like view of those messages, including photos, videos, voice notes, and documents that were included in the export. Use it to recover dates, media, and wording you would otherwise lose.
+
+Export **before** you wipe the Android phone or rely on Move to iOS.
 
 ## What you need
 
-A folder of WhatsApp **Export chat** ZIP files from Android (or similar `.zip` exports). Each ZIP usually contains a `.txt` chat file and optional photos, videos, or voice notes.
+A folder of WhatsApp **Export chat** ZIP files, usually from Android. iOS-style exports (a `_chat.txt` inside a ZIP) also work when they use the same idea.
+
+Each ZIP is typically one chat and contains:
+
+- a `.txt` transcript (`WhatsApp Chat with …txt`)
+- optional media: `IMG-…`, `VID-…`, `PTT-…` / `AUD-…`, PDFs, and similar files
+
+You can put many ZIPs in one folder. Subfolders are scanned too.
+
+### Export from Android (one chat)
+
+1. Open WhatsApp and the chat.
+2. Tap the chat name, or **⋮** / **More**.
+3. Choose **Export chat**.
+4. Choose **With media** if you need photos, video, and voice notes. **Without media** is smaller and still keeps the text.
+5. Save the ZIP (Drive, Files, email to yourself, USB, etc.).
+6. Repeat for every chat you cannot afford to lose.
+
+WhatsApp does not offer a single “export everything” button. Critical chats have to be exported one by one. A full device backup is not the same format; this app reads **Export chat** ZIPs, not the encrypted `msgstore.db` backup.
+
+## Run the app
+
+### Packaged desktop app (no Node.js)
+
+Build artifacts live in `release/` after `npm run build:binaries`, or on a GitHub Release if you publish one.
+
+- **Windows:** unzip `whatsapp-archive-viewer-win-x64.zip` into its own folder, then double-click **WhatsApp Archive Viewer.exe**. Leave the other unzipped files next to the `.exe`.
+- **Linux:** `chmod +x` the `.AppImage` and run it, or extract `whatsapp-archive-viewer-linux-x64.tar.gz` and run **WhatsApp Archive Viewer**.
+
+A desktop window opens. It does not use your web browser.
+
+### From source
+
+1. Install [Node.js 22 or newer](https://nodejs.org).
+2. Double-click `start.bat` on Windows, or run `./start.sh` on Linux/macOS.
+3. The first launch runs `npm install` and may take a minute. A desktop window opens.
+
+```bash
+npm install
+npm start
+```
+
+### Open your export folder
+
+1. Click **Select WhatsApp Archive Folder**.
+2. Choose the folder that contains the ZIP files (not a single ZIP; the folder around them).
+3. If a system folder window does not appear, paste the full path and click **Open this folder**.
+4. Wait while chats are indexed. Large archives with media can take a few minutes the first time.
+
+The folder is remembered. Next time, start the app again. New or changed ZIPs are picked up incrementally.
+
+## What you can do
+
+- Browse chats in a WhatsApp-style list and conversation view
+- Search across all chats or inside one chat (Ctrl+K / ⌘K)
+- Filter by sender, date, and media
+- Open images, play audio/video, and save files
+- Switch light, dark, or system appearance in Settings
+
+Your own messages are aligned on the right when the export includes your WhatsApp display name.
+
+## What the export cannot include
+
+The Android export is incomplete by design. This app can only show what WhatsApp put in the ZIP.
+
+| In the export | In this app |
+| --- | --- |
+| Text, including many Indic scripts | Shown in the thread |
+| Photos, video, voice notes, documents in the ZIP | Shown or playable; opened from the ZIP only when you view them |
+| **Media omitted** (export without media) | Label: *Media omitted from this export* |
+| **Missed voice/video call** | Ordinary text, as WhatsApp wrote it |
+| Blank lines with no file (view-once media, many stickers, polls, live location, expired disappearing messages, and similar) | Label: *This message is not supported* — the payload was never in the ZIP |
+| Duplicate ZIP of the same chat | One copy is kept; the other is skipped |
+
+This app does **not** log into WhatsApp, restore chats onto iOS, merge into a new Android install, or decrypt Google Drive / iCloud backups.
 
 ## Privacy
 
-Your archive is processed locally on this computer. No chat data is uploaded or sent to the internet. The app only listens on `localhost` and does not need an internet connection after it has been installed.
+- Processing is local. Chat text and media are not sent to a server.
+- The app listens only on `127.0.0.1` (localhost).
+- After install/build, it does not need the internet.
+- Index data (SQLite, settings, a media cache of files you actually opened) stays on this machine, **not** inside your ZIP folder and **not** next to the app source or the packaged `.exe` / AppImage.
+
+Index location:
+
+- Windows: `%APPDATA%\WhatsAppArchiveViewer`
+- macOS: `~/Library/Application Support/WhatsAppArchiveViewer`
+- Linux: `~/.config/whatsapp-archive-viewer`
+
+Keep the original ZIP folder. The index points at those files; deleting the ZIPs breaks media.
 
 ## If something goes wrong
 
-- **Folder not found:** the archive folder was moved or renamed. Choose it again from Settings.
-- **A chat was skipped:** open the import report and read the reason. Other chats still import.
-- **Node.js is missing:** install it from https://nodejs.org and start the app again.
+- **Folder not found:** the export folder was moved or renamed. Pick it again in Settings.
+- **A chat was skipped:** open the import report for the reason. Other chats still import.
+- **Port already in use:** another copy of the app is still running. Close it and start again.
+- **Windows `.exe` does nothing if copied alone:** unzip the whole zip into one folder and run it from there.
+- **Node.js is missing** (source install): install it from https://nodejs.org and run `start.bat` / `start.sh` again.
 
-## Settings
+## Rebuild packaged apps
 
-In the app, open Settings to see the current archive folder, change it, or switch light/dark mode.
+```bash
+npm install
+npm run build:binaries
+```
+
+Outputs go to `release/` (Windows zip, Linux AppImage and tar.gz). Those files are not committed to git.
 
 ## For developers
 
@@ -45,8 +136,8 @@ npm test
 npm start
 ```
 
-Use `npm run dev` for a live-reloading frontend. Application data is stored in:
+- `npm start` — desktop window (Electron) wrapping the local server
+- `npm run start:server` — API + UI at `http://127.0.0.1:4783` in a browser
+- `npm run dev` — live-reloading frontend with the local API
 
-- Windows: `%APPDATA%\WhatsAppArchiveViewer`
-- macOS: `~/Library/Application Support/WhatsAppArchiveViewer`
-- Linux: `~/.config/whatsapp-archive-viewer`
+Requires Node.js 22+ (`node:sqlite`).

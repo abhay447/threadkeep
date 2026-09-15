@@ -323,6 +323,78 @@ export function uniqueSenders(messages: ParsedMessage[]): string[] {
   return [...names];
 }
 
+function mediaDayKey(date: Date): string {
+  return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function dayKeyFromFilename(filename: string): string | null {
+  const base = filename.replace(/\\/g, "/").split("/").pop() || filename;
+  const match = /(?:IMG|VID|PTT|AUD|STK|DOC|AUDIO|VIDEO)-(\d{8})-WA/i.exec(base) || /(\d{8})/.exec(base);
+  return match ? match[1] : null;
+}
+
+const ORPHAN_MEDIA_EXT = new Set([
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".gif",
+  ".webp",
+  ".mp4",
+  ".3gp",
+  ".mov",
+  ".opus",
+  ".ogg",
+  ".mp3",
+  ".m4a",
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".vcf",
+]);
+
+/**
+ * WhatsApp sometimes writes a blank caption for photos/docs that still exist
+ * in the ZIP. Attach those leftover files to empty messages on the same day.
+ */
+export function attachOrphanMedia(messages: ParsedMessage[], entryNames: string[]): number {
+  const used = new Set<string>();
+  for (const message of messages) {
+    const name = message.attachment?.filename;
+    if (name) used.add(name.replace(/\\/g, "/").split("/").pop()!.toLowerCase());
+  }
+
+  const byDay = new Map<string, string[]>();
+  for (const entry of entryNames) {
+    const normalized = entry.replace(/\\/g, "/");
+    const base = normalized.split("/").pop() || normalized;
+    if (looksLikeChatTranscript(base)) continue;
+    if (!ORPHAN_MEDIA_EXT.has(extensionOf(base))) continue;
+    if (used.has(base.toLowerCase())) continue;
+    const day = dayKeyFromFilename(base);
+    if (!day) continue;
+    const list = byDay.get(day) || [];
+    list.push(normalized);
+    byDay.set(day, list);
+  }
+  for (const list of byDay.values()) list.sort();
+
+  let linked = 0;
+  for (const message of messages) {
+    if (message.isSystem || message.isDeleted || message.attachment) continue;
+    if (message.text.replace(/\s+/g, "").length) continue;
+    const bucket = byDay.get(mediaDayKey(message.timestamp));
+    if (!bucket?.length) continue;
+    const file = bucket.shift()!;
+    const filename = file.split("/").pop() || file;
+    const type = messageTypeFromFilename(filename);
+    message.attachment = { filename, type, omitted: false };
+    message.type = type;
+    message.text = "";
+    linked += 1;
+  }
+  return linked;
+}
+
 export function mimeFromFilename(filename: string): string {
   const ext = extensionOf(filename);
   const map: Record<string, string> = {

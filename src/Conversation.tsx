@@ -7,6 +7,19 @@ import { MessageBubble } from "./MessageBubble";
 
 const WINDOW = 80;
 
+function estimateRowSize(message?: MessageRow): number {
+  if (!message) return 72;
+  let size = 8;
+  if (message.isFirstOfDay) size += 36;
+  if (message.isSystem) return size + 40;
+  if (!message.text.trim() && !message.attachment && !message.isDeleted) return size + 56;
+  if (message.attachment && (message.type === "image" || message.type === "video")) size += 240;
+  else if (message.attachment && message.type === "sticker") size += 140;
+  else if (message.attachment) size += 76;
+  if (message.text.trim()) size += 28 + Math.min(160, Math.ceil(message.text.length / 46) * 19);
+  return Math.max(size, 56);
+}
+
 export function Conversation({
   chat,
   jumpSeq,
@@ -30,6 +43,8 @@ export function Conversation({
   const [, setTick] = useState(0);
   const [lightbox, setLightbox] = useState<AttachmentRow | null>(null);
   const didInitialScroll = useRef<number | null>(null);
+  const jumpedTo = useRef<string | null>(null);
+  const virtualizerRef = useRef<{ measure: () => void }>({ measure: () => undefined });
 
   const count = chat.messageCount;
 
@@ -56,6 +71,7 @@ export function Conversation({
         const { messages } = await api.messages(chat.id, offset, limit);
         for (const message of messages) cacheRef.current.set(message.seq, message);
         setTick((value) => value + 1);
+        requestAnimationFrame(() => virtualizerRef.current.measure());
       } finally {
         inflight.current.delete(key);
       }
@@ -67,16 +83,24 @@ export function Conversation({
     cacheRef.current = new Map();
     inflight.current = new Set();
     didInitialScroll.current = null;
+    jumpedTo.current = null;
     setTick((value) => value + 1);
   }, [chat.id]);
 
   const virtualizer = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 76,
-    overscan: 16,
+    estimateSize: (index) => estimateRowSize(cacheRef.current.get(index)),
+    overscan: 24,
+    gap: 6,
     getItemKey: (index) => `${chat.id}-${index}`,
+    measureElement: (element) => {
+      const height = element.getBoundingClientRect().height;
+      if (height > 1) return Math.ceil(height);
+      return estimateRowSize(cacheRef.current.get(Number(element.dataset.index)));
+    },
   });
+  virtualizerRef.current = virtualizer;
 
   const items = virtualizer.getVirtualItems();
 
@@ -90,13 +114,18 @@ export function Conversation({
   useEffect(() => {
     if (!count) return;
     if (jumpSeq != null) {
+      const key = `${chat.id}:${jumpSeq}`;
+      if (jumpedTo.current === key) return;
+      jumpedTo.current = key;
       virtualizer.scrollToIndex(Math.min(count - 1, Math.max(0, jumpSeq)), { align: "center" });
       return;
     }
-    if (didInitialScroll.current !== chat.id) {
-      didInitialScroll.current = chat.id;
+    if (didInitialScroll.current === chat.id) return;
+    didInitialScroll.current = chat.id;
+    const frame = window.requestAnimationFrame(() => {
       virtualizer.scrollToIndex(count - 1, { align: "end" });
-    }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [chat.id, count, jumpSeq, virtualizer]);
 
   const images = [...cacheRef.current.values()]
@@ -105,8 +134,8 @@ export function Conversation({
     .sort((a, b) => a.id - b.id);
 
   return (
-    <section className="conversation flex min-w-0 flex-1 flex-col bg-wa-bg dark:bg-wa-bg-dark">
-      <header className="flex h-[60px] items-center gap-3 border-b border-wa-line bg-wa-header px-3 dark:border-wa-line-dark dark:bg-wa-header-dark">
+    <section className="conversation flex min-w-0 flex-1 flex-col bg-wa-bg text-wa-ink dark:bg-wa-bg-dark dark:text-wa-ink-dark">
+      <header className="flex h-[60px] items-center gap-3 border-b border-wa-line bg-wa-header px-3 text-wa-ink dark:border-wa-line-dark dark:bg-wa-header-dark dark:text-wa-ink-dark">
         <button className="rounded-full p-2 text-wa-muted md:hidden" onClick={onBack} aria-label="Back to chats">
           ←
         </button>
@@ -141,14 +170,14 @@ export function Conversation({
                 key={item.key}
                 data-index={item.index}
                 ref={virtualizer.measureElement}
-                className="absolute left-0 w-full px-4 py-1 md:px-12"
-                style={{ transform: `translateY(${item.start}px)` }}
+                className="absolute left-0 box-border w-full px-4 md:px-12"
+                style={{ top: 0, transform: `translateY(${item.start}px)` }}
               >
                 {message ? (
                   <>
                     {message.isFirstOfDay ? (
                       <div className="mb-2 flex justify-center">
-                        <span className="rounded-lg bg-white/90 px-3 py-1 text-[12px] font-medium text-wa-muted shadow-bubble dark:bg-[#182229] dark:text-wa-muted-dark">
+                        <span className="rounded-lg bg-[#ffeaa7] px-3 py-1 text-[12px] font-semibold uppercase tracking-wide text-wa-ink shadow-bubble dark:bg-[#182229] dark:text-wa-ink-dark">
                           {formatDateSeparator(message.timestamp)}
                         </span>
                       </div>

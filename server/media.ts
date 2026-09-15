@@ -3,6 +3,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { mediaCacheDir } from "./config.js";
 import { getAttachment } from "./db.js";
+import { resolveExistingPath } from "./paths.js";
 import { streamZipEntry } from "./zip.js";
 
 const cacheIndex = new Map<number, string>();
@@ -36,11 +37,12 @@ export async function materializeAttachment(attachmentId: number): Promise<{
   const key = cacheKey(attachment.zip_path, attachment.internal_path, attachment.filename);
   const dest = path.join(mediaCacheDir(), `${key}${ext}`);
 
+  const zipPath = resolveExistingPath(attachment.zip_path);
   if (!fs.existsSync(dest)) {
-    if (!fs.existsSync(attachment.zip_path)) {
+    if (!fs.existsSync(zipPath)) {
       throw new Error("The original ZIP file is no longer available");
     }
-    await streamZipEntry(attachment.zip_path, attachment.internal_path || attachment.filename, dest);
+    await streamZipEntry(zipPath, attachment.internal_path || attachment.filename, dest);
   }
 
   cacheIndex.set(attachmentId, dest);

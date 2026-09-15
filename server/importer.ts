@@ -6,6 +6,7 @@ import {
   looksLikeChatTranscript,
   mimeFromFilename,
   parseWhatsAppChat,
+  attachOrphanMedia,
   uniqueSenders,
 } from "./parser.js";
 import {
@@ -18,6 +19,7 @@ import {
 } from "./db.js";
 import { hashFile, listZipEntries, readZipEntry } from "./zip.js";
 import { saveConfig } from "./config.js";
+import { resolveExistingPath } from "./paths.js";
 import type { ImportProgress, ImportReport, ParsedMessage } from "./types.js";
 
 const idleProgress = (): ImportProgress => ({
@@ -411,6 +413,10 @@ async function importOneZip(
   }
 
   const chatName = chatNameFromFilename(chatTxt) || chatNameFromFilename(filename);
+  attachOrphanMedia(
+    parsed.messages,
+    entries.map((entry) => entry.fileName),
+  );
   const lastUser = [...parsed.messages].reverse().find((message) => !message.isSystem) || parsed.messages[parsed.messages.length - 1];
   const duplicateChat = getDb()
     .prepare(
@@ -482,11 +488,12 @@ export async function importArchive(archivePath: string): Promise<ImportReport> 
   };
 
   try {
-    if (!fs.existsSync(archivePath) || !fs.statSync(archivePath).isDirectory()) {
+    const root = resolveExistingPath(archivePath);
+    if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
       throw new Error("Archive folder could not be found");
     }
 
-    const zips = discoverZipFiles(archivePath);
+    const zips = discoverZipFiles(root);
     report.found = zips.length;
     emit({
       phase: "index",
@@ -554,7 +561,7 @@ export async function importArchive(archivePath: string): Promise<ImportReport> 
     }
 
     saveConfig({
-      archivePath,
+      archivePath: root,
       lastIndexed: new Date().toISOString(),
       ownerName,
     });

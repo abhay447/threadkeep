@@ -51,7 +51,7 @@ function typeLabel(type: MessageType): string {
 
 export function MessageText({ text, highlight }: { text: string; highlight?: string }) {
   const html = useMemo(() => formatWhatsAppText(text, highlight), [text, highlight]);
-  return <div className="whitespace-pre-wrap break-words text-[14.2px] leading-5" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div className="whitespace-pre-wrap break-words text-[14.5px] leading-[19px] text-wa-ink dark:text-wa-ink-dark" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 export function MediaBlock({
@@ -240,14 +240,30 @@ export function MessageBubble({
 }) {
   if (message.isSystem) {
     return (
-      <div className="mx-auto max-w-[80%] rounded-lg bg-white/80 px-3 py-1.5 text-center text-[12.5px] text-wa-muted shadow-bubble dark:bg-[#182229] dark:text-wa-muted-dark">
+      <div className="mx-auto max-w-[80%] rounded-lg bg-[#ffeaa7]/90 px-3 py-1.5 text-center text-[12.5px] font-medium text-wa-ink shadow-bubble dark:bg-[#182229] dark:text-wa-ink-dark">
         {message.text.replace(/\*Learn more\*/i, "").trim()}
       </div>
     );
   }
 
-  if (!message.text && !message.attachment && !message.isDeleted) {
-    return null;
+  if (!message.text.trim() && !message.attachment && !message.isDeleted) {
+    const mine = message.isFromMe;
+    return (
+      <div className={`flex min-h-[52px] items-end ${mine ? "justify-end" : "justify-start"}`}>
+        <div
+          className={`max-w-[75%] rounded-lg px-2 py-1.5 italic shadow-bubble ${
+            mine
+              ? "bubble-out rounded-tr-none bg-wa-out dark:bg-wa-out-dark"
+              : "bubble-in rounded-tl-none bg-wa-in dark:bg-wa-in-dark"
+          }`}
+        >
+          <div className="text-[13.5px] text-wa-muted dark:text-wa-muted-dark">This message is not supported</div>
+          <div className="mt-0.5 flex items-center justify-end text-[11px] text-wa-muted dark:text-wa-muted-dark">
+            {formatClock(message.timestamp)}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const mine = message.isFromMe;
@@ -276,7 +292,7 @@ export function MessageBubble({
             {message.isEdited ? <div className="text-[11px] italic text-wa-muted">edited</div> : null}
           </>
         )}
-        <div className="mt-0.5 flex items-center justify-end gap-1 text-[11px] text-wa-muted dark:text-wa-muted-dark">
+        <div className="mt-0.5 flex items-center justify-end gap-1 text-[11px] font-medium text-wa-muted dark:text-wa-muted-dark">
           <span>{formatClock(message.timestamp)}</span>
         </div>
       </div>

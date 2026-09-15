@@ -139,6 +139,13 @@ describe("parseWhatsAppChat", () => {
     expect(messages[1].text).toBe("Done");
   });
 
+  it("keeps Odia text on the same message as the sender", () => {
+    const { messages } = parseWhatsAppChat("10/08/25, 12:20 pm - Alice: sorry, ଯେତେବେଳେ");
+    expect(messages[0].sender).toBe("Alice");
+    expect(messages[0].isSystem).toBe(false);
+    expect(messages[0].text).toContain("sorry");
+  });
+
   it("parses empty-body messages that end with a colon", () => {
     const { messages } = parseWhatsAppChat("15/09/26, 10:32 am - Alice:\n15/09/26, 10:33 am - Bob: Hi");
     expect(messages[0].isSystem).toBe(false);
@@ -175,5 +182,20 @@ describe("helpers", () => {
     expect(inspectMessageBody("VID-20260915-WA0001.mp4 (file attached)").type).toBe("video");
     expect(inspectMessageBody("STK-20260915-WA0001.webp (file attached)").type).toBe("sticker");
     expect(inspectMessageBody("DOC-20260915-WA0001.pdf (file attached)").type).toBe("document");
+  });
+});
+
+describe("orphan media", () => {
+  it("attaches leftover ZIP photos to blank caption messages on the same day", async () => {
+    const { attachOrphanMedia } = await import("../server/parser.js");
+    const { messages } = parseWhatsAppChat(
+      "18/08/25, 3:37 pm - Alice:\n18/08/25, 3:38 pm - Alice: hello\n06/09/25, 7:55 pm - Alice:\n",
+    );
+    const linked = attachOrphanMedia(messages, ["IMG-20250818-WA0020.jpg", "IMG-20250906-WA0005.jpg", "notes.txt"]);
+    expect(linked).toBe(2);
+    expect(messages[0].type).toBe("image");
+    expect(messages[0].attachment?.filename).toBe("IMG-20250818-WA0020.jpg");
+    expect(messages[1].text).toBe("hello");
+    expect(messages[2].attachment?.filename).toBe("IMG-20250906-WA0005.jpg");
   });
 });

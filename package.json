@@ -3,16 +3,61 @@
   "version": "1.0.0",
   "private": true,
   "description": "Local-only viewer for exported WhatsApp chat ZIP archives",
+  "author": "Private local app",
   "type": "module",
+  "main": "build/electron-main.cjs",
   "scripts": {
-    "start": "tsx server/index.ts",
-    "dev": "concurrently -k \"tsx watch server/index.ts\" \"vite\"",
+    "start": "node scripts/start-desktop.mjs",
+    "start:server": "tsx server/start.ts",
+    "dev": "concurrently -k \"tsx watch server/start.ts\" \"vite\"",
     "build": "vite build",
+    "build:binaries": "node scripts/package-binaries.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "engines": {
     "node": ">=22"
+  },
+  "build": {
+    "appId": "local.whatsapp.archive.viewer",
+    "productName": "WhatsApp Archive Viewer",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "build/electron-main.cjs",
+      "dist/**/*"
+    ],
+    "asar": true,
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "tar.gz",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Utility",
+      "artifactName": "whatsapp-archive-viewer-${os}-${arch}.${ext}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "whatsapp-archive-viewer-${os}-${arch}.${ext}"
+    }
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.13.12",
@@ -34,6 +79,9 @@
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.1.2",
+    "electron": "^37.3.1",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.25.9",
     "fflate": "^0.8.2",
     "postcss": "^8.5.6",
     "supertest": "^7.1.4",
