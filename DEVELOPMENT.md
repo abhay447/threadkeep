@@ -21,7 +21,7 @@ npm start
 | `npm run start:server` | Local API + UI at `http://127.0.0.1:4783` in a browser |
 | `npm run dev` | Live-reloading frontend with the local API |
 | `npm test` | Vitest |
-| `npm run build:binaries` | Windows zip + Linux AppImage and tar.gz in `release/` |
+| `npm run build:binaries` | Windows zip + Linux AppImage and tar.gz (Mac zip only when this command runs on macOS) |
 
 `start.bat` / `start.sh` call `npm start` after installing dependencies once.
 

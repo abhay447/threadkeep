@@ -2,7 +2,7 @@
   "name": "whatsapp-archive-viewer",
   "version": "1.1.0",
   "private": true,
-  "description": "Local-only viewer for exported WhatsApp chat ZIP archives",
+  "description": "Local viewer for WhatsApp Export chat ZIPs on Windows, Linux, and Apple Silicon Mac",
   "author": "Private local app",
   "type": "module",
   "main": "build/electron-main.cjs",

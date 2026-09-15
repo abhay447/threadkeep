@@ -475,7 +475,7 @@ function Welcome({
   busy,
   error,
   title = "WhatsApp Archive",
-  body = "Browse your exported WhatsApp chats privately on this computer.",
+  body = "Choose the folder of WhatsApp Export chat ZIP files. Everything stays on this computer.",
   browseLabel = "Select WhatsApp Archive Folder",
 }: {
   onSelect: (folderPath?: string) => void;

@@ -65,18 +65,25 @@ If Move to iOS does not migrate chats correctly, export important chats on Andro
 (chat -> More -> Export chat), copy the ZIP files to this computer, and open them here.
 This app is a local failsafe reader. It does not restore chats onto an iPhone.
 
+Which file to use
+  Windows 64-bit:     whatsapp-archive-viewer-win-x64.zip
+  Linux 64-bit:       .AppImage or whatsapp-archive-viewer-linux-x64.tar.gz
+  Mac Apple Silicon:  whatsapp-archive-viewer-mac-arm64.zip
+  Not for Intel Macs, 32-bit PCs, or phones.
+
 Windows:
-  Unzip this zip into a folder, then double-click "WhatsApp Archive Viewer.exe"
+  Unzip the zip into a folder, then double-click "WhatsApp Archive Viewer.exe"
   Keep the unzipped files together; the .exe will not work if you move it out alone.
 
 Linux:
   chmod +x the AppImage, then run it
   or extract the tar.gz and run WhatsApp Archive Viewer
 
-macOS (Apple Silicon):
+macOS (Apple Silicon: M1, M2, M3, M4):
   Unzip whatsapp-archive-viewer-mac-arm64.zip
   Open "WhatsApp Archive Viewer.app"
   If macOS blocks it, Control-click the app, choose Open, then Open again
+  The app is unsigned, so that warning is expected the first time.
 
 A window opens. Click "Select WhatsApp Archive Folder" and choose the folder of
 exported WhatsApp ZIP files (not a single ZIP).

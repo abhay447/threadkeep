@@ -2,25 +2,31 @@ Local Windows, Linux, and Apple Silicon Mac apps for reading WhatsApp **Export c
 
 If **Move to iOS** does not migrate chats correctly, export important chats on Android (chat → **More** → **Export chat**), copy the ZIP files to your computer, and open them here. This is a failsafe reader. It does not restore chats onto an iPhone.
 
+Download the file that matches your computer:
+
+| Computer | File |
+| --- | --- |
+| Windows (64-bit) | `whatsapp-archive-viewer-win-x64.zip` |
+| Linux (64-bit) | `whatsapp-archive-viewer-linux-x86_64.AppImage` or `whatsapp-archive-viewer-linux-x64.tar.gz` |
+| Mac with Apple Silicon (M1–M4) | `whatsapp-archive-viewer-mac-arm64.zip` |
+
 ### Windows
 
-1. Download `whatsapp-archive-viewer-win-x64.zip`
-2. Unzip it into its own folder
-3. Double-click **WhatsApp Archive Viewer.exe** (keep the other unzipped files next to it)
+1. Unzip `whatsapp-archive-viewer-win-x64.zip` into its own folder.
+2. Double-click **WhatsApp Archive Viewer.exe**. Keep the other unzipped files next to it.
 
 ### Linux
 
-- Download the `.AppImage`, run `chmod +x` on it, then run it
-- Or download `whatsapp-archive-viewer-linux-x64.tar.gz`, extract it, and run **WhatsApp Archive Viewer**
+- AppImage: `chmod +x whatsapp-archive-viewer-linux-x86_64.AppImage`, then run it.
+- Or extract `whatsapp-archive-viewer-linux-x64.tar.gz` and run **WhatsApp Archive Viewer**.
 
 ### Mac (Apple Silicon)
 
-1. Download `whatsapp-archive-viewer-mac-arm64.zip`
-2. Unzip it and open **WhatsApp Archive Viewer**
-3. If macOS blocks it, Control-click the app, choose **Open**, then **Open** again
+1. Unzip `whatsapp-archive-viewer-mac-arm64.zip` and open **WhatsApp Archive Viewer**.
+2. If macOS blocks it, Control-click the app, choose **Open**, then **Open** again. The app is unsigned, so this warning is expected the first time.
 
-This Mac build is for M1/M2/M3/M4. It is not for Intel Macs.
+This Mac build is not for Intel Macs.
 
 In the app, choose the folder that contains your ZIP files (not a single ZIP).
 
-See the repository README for export steps, privacy, and what WhatsApp leaves out of an export.
+Full export steps, privacy, and what WhatsApp leaves out of an export: [README](https://github.com/abhay447/whatsapp-archive-viewer#readme).
