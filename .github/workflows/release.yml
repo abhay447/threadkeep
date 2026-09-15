@@ -43,8 +43,24 @@ jobs:
           path: release/*.zip
           if-no-files-found: error
 
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: node scripts/package-binaries.mjs --mac zip --arm64 --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: release/*.zip
+          if-no-files-found: error
+
   publish:
-    needs: [build-linux, build-windows]
+    needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4

@@ -68,26 +68,27 @@ npm install
 npm run build:binaries
 ```
 
-Writes `release/whatsapp-archive-viewer-win-x64.zip`, Linux AppImage, and `tar.gz`. Those artifacts are not committed.
+Writes `release/whatsapp-archive-viewer-win-x64.zip`, Linux AppImage and `tar.gz`, and (on a Mac) `whatsapp-archive-viewer-mac-arm64.zip`. Those artifacts are not committed.
 
-Windows: keep the unzipped `.exe` next to its DLLs. Linux: `chmod +x` the AppImage.
+Windows: keep the unzipped `.exe` next to its DLLs. Linux: `chmod +x` the AppImage. Mac: unsigned Apple Silicon zip; Control-click **Open** the first time. The Mac zip is built on GitHub’s `macos-14` runner, not from Linux.
 
-Cross-building Windows from Linux depends on electron-builder’s wine/nsis setup on the machine.
+Cross-building Windows from Linux depends on electron-builder’s wine/nsis setup on the machine. macOS packages must be built on macOS.
 
-Linux-only or Windows-only:
+Linux-only, Windows-only, or Apple Silicon Mac:
 
 ```bash
 node scripts/package-binaries.mjs --linux AppImage tar.gz
 node scripts/package-binaries.mjs --win zip
+node scripts/package-binaries.mjs --mac zip --arm64
 ```
 
 ## GitHub release
 
-Push an annotated version tag. GitHub Actions builds the apps and publishes them on the Releases page.
+Push an annotated version tag. GitHub Actions builds Windows, Linux, and Apple Silicon Mac apps and publishes them on the Releases page.
 
 ```bash
-git tag -a v1.0.0 -m "WhatsApp Archive Viewer 1.0.0"
-git push origin v1.0.0
+git tag -a v1.1.0 -m "WhatsApp Archive Viewer 1.1.0"
+git push origin v1.1.0
 ```
 
 ## Import notes

@@ -11,7 +11,7 @@ Apple’s **Move to iOS** app on Android is supposed to migrate WhatsApp data to
 If the automatic move does not work, you can still keep those chats:
 
 1. On Android, **manually export** the chats that matter (WhatsApp → a chat → **More** → **Export chat**).
-2. Copy the ZIP files to a Windows or Linux PC (USB drive, cable, cloud folder you control, or a shared disk).
+2. Copy the ZIP files to a Windows, Linux, or Mac computer (USB drive, cable, cloud folder you control, or a shared disk).
 3. Open this app and point it at that folder.
 
 You then have a searchable, WhatsApp-like view of those messages, including photos, videos, voice notes, and documents that were included in the export. Use it to recover dates, media, and wording you would otherwise lose.
@@ -46,6 +46,7 @@ Use a packaged app from a [GitHub Release](https://github.com/abhay447/whatsapp-
 
 - **Windows:** unzip `whatsapp-archive-viewer-win-x64.zip` into its own folder, then double-click **WhatsApp Archive Viewer.exe**. Leave the other unzipped files next to the `.exe`.
 - **Linux:** `chmod +x` the `.AppImage` and run it, or extract `whatsapp-archive-viewer-linux-x64.tar.gz` and run **WhatsApp Archive Viewer**.
+- **Mac (Apple Silicon):** unzip `whatsapp-archive-viewer-mac-arm64.zip` and open **WhatsApp Archive Viewer**. If macOS says it cannot verify the developer, Control-click the app, choose **Open**, then **Open** again. This build is for M1/M2/M3/M4 Macs, not Intel Macs.
 
 A desktop window opens. It does not use your web browser.
 
@@ -110,4 +111,5 @@ Keep the original ZIP folder. The index points at those files; deleting the ZIPs
 - **A chat was skipped:** open the import report and read the reason. Other chats still import.
 - **Port already in use:** another copy of the app is still running. Close it and start again.
 - **Windows `.exe` does nothing if copied alone:** unzip the whole zip into one folder and run it from there.
+- **Mac says the app cannot be opened:** Control-click **WhatsApp Archive Viewer**, choose **Open**, then **Open** again. This release is Apple Silicon only.
 - **“Node.js is not installed”:** install it from https://nodejs.org and run `start.bat` or `start.sh` again.

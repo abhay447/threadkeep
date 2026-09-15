@@ -73,6 +73,11 @@ Linux:
   chmod +x the AppImage, then run it
   or extract the tar.gz and run WhatsApp Archive Viewer
 
+macOS (Apple Silicon):
+  Unzip whatsapp-archive-viewer-mac-arm64.zip
+  Open "WhatsApp Archive Viewer.app"
+  If macOS blocks it, Control-click the app, choose Open, then Open again
+
 A window opens. Click "Select WhatsApp Archive Folder" and choose the folder of
 exported WhatsApp ZIP files (not a single ZIP).
 

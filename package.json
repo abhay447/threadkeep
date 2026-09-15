@@ -1,6 +1,6 @@
 {
   "name": "whatsapp-archive-viewer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Local-only viewer for exported WhatsApp chat ZIP archives",
   "author": "Private local app",
@@ -57,6 +57,21 @@
         }
       ],
       "artifactName": "whatsapp-archive-viewer-${os}-${arch}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "artifactName": "whatsapp-archive-viewer-${os}-${arch}.${ext}",
+      "category": "public.app-category.utilities",
+      "identity": null,
+      "gatekeeperAssess": false,
+      "hardenedRuntime": false
     }
   },
   "dependencies": {
