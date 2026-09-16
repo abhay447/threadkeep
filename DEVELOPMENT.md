@@ -87,8 +87,8 @@ node scripts/package-binaries.mjs --mac zip --arm64
 Push an annotated version tag. GitHub Actions builds Windows, Linux, and Apple Silicon Mac apps and publishes them on the Releases page.
 
 ```bash
-git tag -a v1.1.0 -m "Threadkeep 1.1.0"
-git push origin v1.1.0
+git tag -a v1.2.0 -m "Threadkeep 1.2.0"
+git push origin v1.2.0
 ```
 
 ## Import notes

@@ -1,3 +1,5 @@
+**1.2.0:** The app is named Threadkeep. iPhone export chats show the other person’s name. **Rebuild index** in the header reimports the current folder without picking it again.
+
 Local Windows, Linux, and Apple Silicon Mac apps for reading **Export chat** ZIP files on this computer. Nothing is uploaded.
 
 Threadkeep is not affiliated with WhatsApp or Meta. If **Move to iOS** does not migrate chats correctly, export important chats on Android (chat → **More** → **Export chat**), copy the ZIP files to your computer, and open them here. This is a failsafe reader. It does not restore chats onto an iPhone.

@@ -113,6 +113,20 @@ describe("app flows", () => {
     expect(index.body.seq).toBe(search.body.results[0].seq);
   });
 
+  it("rebuilds the index without changing the archive folder", async () => {
+    await importFolder(archiveDir);
+    const again = await request(app).post("/api/import").send({ path: archiveDir });
+    expect(again.body.report.reused).toBeGreaterThanOrEqual(1);
+    const rebuilt = await request(app).post("/api/reindex");
+    expect(rebuilt.status).toBe(200);
+    expect(rebuilt.body.report.imported).toBe(1);
+    expect(rebuilt.body.report.reused).toBe(0);
+    const status = await request(app).get("/api/status");
+    expect(status.body.archivePath).toBe(archiveDir);
+    const chats = await request(app).get("/api/chats");
+    expect(chats.body.chats[0].name).toBe("Alice");
+  });
+
   it("extracts media only when requested", async () => {
     await importFolder(archiveDir);
     const chat = listChats()[0];

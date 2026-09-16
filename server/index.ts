@@ -103,16 +103,7 @@ export async function createApp() {
     }
   });
 
-  app.post("/api/import", async (req, res) => {
-    const config = loadConfig();
-    const archivePath =
-      process.env.THREADKEEP_ALLOW_PATH === "1" && typeof req.body?.path === "string"
-        ? toLocalFilesystemPath(req.body.path)
-        : config.archivePath;
-    if (!archivePath) {
-      res.status(400).json({ error: "No archive folder selected" });
-      return;
-    }
+  async function startImportResponse(archivePath: string, res: express.Response) {
     if (isImportRunning()) {
       res.json({ started: false, alreadyRunning: true });
       return;
@@ -128,6 +119,38 @@ export async function createApp() {
     }
     importArchive(archivePath).catch(() => undefined);
     res.json({ started: true });
+  }
+
+  app.post("/api/import", async (req, res) => {
+    const config = loadConfig();
+    const archivePath =
+      process.env.THREADKEEP_ALLOW_PATH === "1" && typeof req.body?.path === "string"
+        ? toLocalFilesystemPath(req.body.path)
+        : config.archivePath;
+    if (!archivePath) {
+      res.status(400).json({ error: "No archive folder selected" });
+      return;
+    }
+    await startImportResponse(archivePath, res);
+  });
+
+  app.post("/api/reindex", async (_req, res) => {
+    const config = loadConfig();
+    if (!config.archivePath) {
+      res.status(400).json({ error: "No archive folder selected" });
+      return;
+    }
+    if (folderStatus(config.archivePath) !== "ready") {
+      res.status(400).json({ error: "That folder could not be found." });
+      return;
+    }
+    if (isImportRunning()) {
+      res.status(409).json({ error: "Indexing is already running" });
+      return;
+    }
+    resetDatabase();
+    saveConfig({ lastIndexed: null });
+    await startImportResponse(config.archivePath, res);
   });
 
   app.get("/api/import/stream", (req, res) => {

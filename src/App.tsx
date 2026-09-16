@@ -13,7 +13,7 @@ export default function App() {
   const [chatQuery, setChatQuery] = useState("");
   const [activeId, setActiveId] = useState<number | null>(null);
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState<"off" | "picker" | "path">("off");
+  const [busy, setBusy] = useState<"off" | "picker" | "path" | "reindex">("off");
   const [progress, setProgress] = useState<ImportProgress | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -183,6 +183,27 @@ export default function App() {
     }
   };
 
+  const rebuildIndex = async () => {
+    if (busy !== "off") return;
+    setBusy("reindex");
+    setError("");
+    setShowSettings(false);
+    setActiveId(null);
+    setChats([]);
+    setScreen("importing");
+    try {
+      await api.rebuildIndex();
+      await loadChats();
+      await refreshStatus();
+      setScreen("ready");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not rebuild the index");
+      setScreen("error");
+    } finally {
+      setBusy("off");
+    }
+  };
+
   const openHit = (hit: SearchHit) => {
     setActiveId(hit.chatId);
     setJump({ chatId: hit.chatId, seq: hit.seq, messageId: hit.messageId });
@@ -242,6 +263,13 @@ export default function App() {
               </div>
             </div>
             <div className="flex items-center gap-1">
+              <button
+                className="rounded-full px-3 py-1.5 text-sm font-medium text-tk-green-dark hover:bg-black/5 disabled:opacity-60 dark:text-tk-accent dark:hover:bg-white/5"
+                onClick={() => rebuildIndex()}
+                disabled={busy !== "off"}
+              >
+                {busy === "reindex" ? "Rebuilding…" : "Rebuild index"}
+              </button>
               <button
                 className="rounded-full px-2 py-1 text-sm hover:bg-black/5 dark:hover:bg-white/5"
                 onClick={() => {
@@ -479,7 +507,7 @@ function Welcome({
   browseLabel = "Select export folder",
 }: {
   onSelect: (folderPath?: string) => void;
-  busy: "off" | "picker" | "path";
+  busy: "off" | "picker" | "path" | "reindex";
   error: string;
   title?: string;
   body?: string;
@@ -520,7 +548,7 @@ function FolderPathForm({
   onOpen,
   placeholder = "Folder path, for example C:\\Users\\You\\Chat exports",
 }: {
-  busy: "off" | "picker" | "path";
+  busy: "off" | "picker" | "path" | "reindex";
   onOpen: (folderPath: string) => void;
   placeholder?: string;
 }) {

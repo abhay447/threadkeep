@@ -29,6 +29,10 @@ export const api = {
     json<{ started: boolean; alreadyRunning?: boolean }>(
       fetch("/api/import", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
     ),
+  rebuildIndex: () =>
+    json<{ started: boolean; alreadyRunning?: boolean }>(
+      fetch("/api/reindex", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
+    ),
   chats: (q?: string) =>
     json<{ chats: ChatSummary[] }>(fetch(`/api/chats${q ? `?q=${encodeURIComponent(q)}` : ""}`)),
   chat: (id: number) => json<ChatSummary>(fetch(`/api/chats/${id}`)),
