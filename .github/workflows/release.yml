@@ -80,5 +80,5 @@ jobs:
             exit 1
           fi
           gh release create "$GITHUB_REF_NAME" "${files[@]}" \
-            --title "WhatsApp Archive Viewer ${GITHUB_REF_NAME#v}" \
+            --title "Threadkeep ${GITHUB_REF_NAME#v}" \
             --notes-file .github/release-notes.md

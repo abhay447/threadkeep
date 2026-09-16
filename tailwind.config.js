@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        wa: {
+        tk: {
           green: "#00a884",
           "green-dark": "#008069",
           accent: "#25d366",

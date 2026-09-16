@@ -93,7 +93,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
-public static class WaFolderFocus {
+public static class TkFolderFocus {
   [DllImport("user32.dll")] public static extern bool AllowSetForegroundWindow(int dwProcessId);
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
   [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
@@ -101,10 +101,10 @@ public static class WaFolderFocus {
 }
 "@
 
-[void][WaFolderFocus]::AllowSetForegroundWindow(-1)
+[void][TkFolderFocus]::AllowSetForegroundWindow(-1)
 
 $owner = New-Object System.Windows.Forms.Form
-$owner.Text = 'WhatsApp Archive'
+$owner.Text = 'Threadkeep'
 $owner.TopMost = $true
 $owner.ShowInTaskbar = $true
 $owner.StartPosition = 'CenterScreen'
@@ -115,18 +115,18 @@ $owner.Width = 420
 $owner.Height = 90
 $owner.TopLevel = $true
 $label = New-Object System.Windows.Forms.Label
-$label.Text = 'Choose your WhatsApp export folder in the window that opens.'
+$label.Text = 'Choose your chat export folder in the window that opens.'
 $label.Dock = 'Fill'
 $label.TextAlign = 'MiddleCenter'
 $owner.Controls.Add($label)
 $owner.Show()
 $owner.Activate()
-[void][WaFolderFocus]::ShowWindow($owner.Handle, 5)
-[void][WaFolderFocus]::BringWindowToTop($owner.Handle)
-[void][WaFolderFocus]::SetForegroundWindow($owner.Handle)
+[void][TkFolderFocus]::ShowWindow($owner.Handle, 5)
+[void][TkFolderFocus]::BringWindowToTop($owner.Handle)
+[void][TkFolderFocus]::SetForegroundWindow($owner.Handle)
 
 $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
-$dialog.Description = 'Select the folder that contains your exported WhatsApp chat ZIP files'
+$dialog.Description = 'Select the folder that contains your exported chat ZIP files'
 $dialog.ShowNewFolderButton = $false
 try { $dialog.UseDescriptionForTitle = $true } catch {}
 try { $dialog.SelectedPath = [Environment]::GetFolderPath('MyDocuments') } catch {}
@@ -169,7 +169,7 @@ exit 1
 async function pickMacFolder(): Promise<string> {
   const result = await run("osascript", [
     "-e",
-    'POSIX path of (choose folder with prompt "Select the folder that contains your exported WhatsApp chat ZIP files")',
+    'POSIX path of (choose folder with prompt "Select the folder that contains your exported chat ZIP files")',
   ]);
   if (result.code !== 0) throw new FolderPickCancelled();
   const selected = result.stdout.trim();
@@ -182,7 +182,7 @@ async function pickLinuxFolder(): Promise<string> {
     const zenity = await run("zenity", [
       "--file-selection",
       "--directory",
-      "--title=Select WhatsApp Archive Folder",
+      "--title=Select export folder",
     ]);
     if (zenity.code === 0 && zenity.stdout.trim()) return zenity.stdout.trim();
     if (zenity.code === 1) throw new FolderPickCancelled();
@@ -190,7 +190,7 @@ async function pickLinuxFolder(): Promise<string> {
     if (error instanceof FolderPickCancelled) throw error;
   }
   try {
-    const kdialog = await run("kdialog", ["--getexistingdirectory", ".", "Select WhatsApp Archive Folder"]);
+    const kdialog = await run("kdialog", ["--getexistingdirectory", ".", "Select export folder"]);
     if (kdialog.code === 0 && kdialog.stdout.trim()) return kdialog.stdout.trim();
     throw new FolderPickCancelled();
   } catch (error) {

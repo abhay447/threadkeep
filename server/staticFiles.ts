@@ -25,7 +25,7 @@ let manifest: Record<string, EmbeddedFile> | null = null;
 
 function loadManifest(): Record<string, EmbeddedFile> {
   if (manifest) return manifest;
-  const injected = (globalThis as { __WA_UI__?: Record<string, EmbeddedFile> }).__WA_UI__;
+  const injected = (globalThis as { __THREADKEEP_UI__?: Record<string, EmbeddedFile> }).__THREADKEEP_UI__;
   if (injected && Object.keys(injected).length) {
     manifest = injected;
     return manifest;

@@ -1,8 +1,8 @@
 {
-  "name": "whatsapp-archive-viewer",
+  "name": "threadkeep",
   "version": "1.1.0",
   "private": true,
-  "description": "Local viewer for WhatsApp Export chat ZIPs on Windows, Linux, and Apple Silicon Mac",
+  "description": "Local desktop reader for exported chat ZIP archives on Windows, Linux, and Apple Silicon Mac",
   "author": "Private local app",
   "type": "module",
   "main": "build/electron-main.cjs",
@@ -19,8 +19,8 @@
     "node": ">=22"
   },
   "build": {
-    "appId": "local.whatsapp.archive.viewer",
-    "productName": "WhatsApp Archive Viewer",
+    "appId": "app.threadkeep.desktop",
+    "productName": "Threadkeep",
     "directories": {
       "output": "release"
     },
@@ -45,7 +45,7 @@
         }
       ],
       "category": "Utility",
-      "artifactName": "whatsapp-archive-viewer-${os}-${arch}.${ext}"
+      "artifactName": "threadkeep-${os}-${arch}.${ext}"
     },
     "win": {
       "target": [
@@ -56,7 +56,7 @@
           ]
         }
       ],
-      "artifactName": "whatsapp-archive-viewer-${os}-${arch}.${ext}"
+      "artifactName": "threadkeep-${os}-${arch}.${ext}"
     },
     "mac": {
       "target": [
@@ -67,7 +67,7 @@
           ]
         }
       ],
-      "artifactName": "whatsapp-archive-viewer-${os}-${arch}.${ext}",
+      "artifactName": "threadkeep-${os}-${arch}.${ext}",
       "category": "public.app-category.utilities",
       "identity": null,
       "gatekeeperAssess": false,

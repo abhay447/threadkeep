@@ -134,9 +134,9 @@ export function Conversation({
     .sort((a, b) => a.id - b.id);
 
   return (
-    <section className="conversation flex min-w-0 flex-1 flex-col bg-wa-bg text-wa-ink dark:bg-wa-bg-dark dark:text-wa-ink-dark">
-      <header className="flex h-[60px] items-center gap-3 border-b border-wa-line bg-wa-header px-3 text-wa-ink dark:border-wa-line-dark dark:bg-wa-header-dark dark:text-wa-ink-dark">
-        <button className="rounded-full p-2 text-wa-muted md:hidden" onClick={onBack} aria-label="Back to chats">
+    <section className="conversation flex min-w-0 flex-1 flex-col bg-tk-bg text-tk-ink dark:bg-tk-bg-dark dark:text-tk-ink-dark">
+      <header className="flex h-[60px] items-center gap-3 border-b border-tk-line bg-tk-header px-3 text-tk-ink dark:border-tk-line-dark dark:bg-tk-header-dark dark:text-tk-ink-dark">
+        <button className="rounded-full p-2 text-tk-muted md:hidden" onClick={onBack} aria-label="Back to chats">
           ←
         </button>
         <div
@@ -147,14 +147,14 @@ export function Conversation({
         </div>
         <button className="min-w-0 flex-1 text-left" onClick={onOpenInfo}>
           <div className="truncate font-medium">{chat.name}</div>
-          <div className="truncate text-xs text-wa-muted dark:text-wa-muted-dark">
+          <div className="truncate text-xs text-tk-muted dark:text-tk-muted-dark">
             {chat.isGroup
               ? `${chat.participantCount} participants · ${chat.messageCount.toLocaleString()} messages`
               : `${chat.messageCount.toLocaleString()} messages`}
           </div>
         </button>
         <button
-          className="rounded-full px-3 py-1.5 text-sm text-wa-muted hover:bg-black/5 dark:hover:bg-white/5"
+          className="rounded-full px-3 py-1.5 text-sm text-tk-muted hover:bg-black/5 dark:hover:bg-white/5"
           onClick={onOpenSearch}
         >
           Search
@@ -177,7 +177,7 @@ export function Conversation({
                   <>
                     {message.isFirstOfDay ? (
                       <div className="mb-2 flex justify-center">
-                        <span className="rounded-lg bg-[#ffeaa7] px-3 py-1 text-[12px] font-semibold uppercase tracking-wide text-wa-ink shadow-bubble dark:bg-[#182229] dark:text-wa-ink-dark">
+                        <span className="rounded-lg bg-[#ffeaa7] px-3 py-1 text-[12px] font-semibold uppercase tracking-wide text-tk-ink shadow-bubble dark:bg-[#182229] dark:text-tk-ink-dark">
                           {formatDateSeparator(message.timestamp)}
                         </span>
                       </div>

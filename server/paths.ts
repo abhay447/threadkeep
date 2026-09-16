@@ -53,7 +53,7 @@ export function resolveExistingPath(input: string): string {
 }
 
 export function isPackaged(): boolean {
-  if (process.env.WA_PACKAGED === "1") return true;
+  if (process.env.THREADKEEP_PACKAGED === "1") return true;
   if (Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)) return true;
   try {
     const filePath = fileURLToPath(import.meta.url);
@@ -69,7 +69,7 @@ export function projectRoot(): string {
 }
 
 export function frontendDir(): string {
-  if (process.env.WA_FRONTEND_DIR) return process.env.WA_FRONTEND_DIR;
+  if (process.env.THREADKEEP_FRONTEND_DIR) return process.env.THREADKEEP_FRONTEND_DIR;
   const here = path.dirname(fileURLToPath(import.meta.url));
   const packagedPublic = path.join(here, "public");
   if (fs.existsSync(path.join(packagedPublic, "index.html"))) return packagedPublic;
@@ -88,17 +88,17 @@ export function isPathInside(child: string, parent: string): boolean {
 export function defaultDataDir(): string {
   const home = os.homedir();
   if (process.platform === "win32") {
-    return path.join(process.env.APPDATA || path.join(home, "AppData", "Roaming"), "WhatsAppArchiveViewer");
+    return path.join(process.env.APPDATA || path.join(home, "AppData", "Roaming"), "Threadkeep");
   }
   if (process.platform === "darwin") {
-    return path.join(home, "Library", "Application Support", "WhatsAppArchiveViewer");
+    return path.join(home, "Library", "Application Support", "Threadkeep");
   }
-  return path.join(process.env.XDG_CONFIG_HOME || path.join(home, ".config"), "whatsapp-archive-viewer");
+  return path.join(process.env.XDG_CONFIG_HOME || path.join(home, ".config"), "threadkeep");
 }
 
 export function getDataDir(): string {
   const fallback = defaultDataDir();
-  const requested = process.env.WA_ARCHIVE_DATA_DIR?.trim();
+  const requested = process.env.THREADKEEP_DATA_DIR?.trim();
   if (!requested) return fallback;
   const resolved = path.resolve(requested);
   if (isPathInside(resolved, projectRoot())) return fallback;

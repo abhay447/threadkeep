@@ -5,7 +5,7 @@ import {
   isGroupChat,
   looksLikeChatTranscript,
   matchTimestampLine,
-  parseWhatsAppChat,
+  parseChatExport,
 } from "../server/parser.js";
 
 describe("timestamp detection", () => {
@@ -43,9 +43,9 @@ describe("timestamp detection", () => {
   });
 });
 
-describe("parseWhatsAppChat", () => {
+describe("parseChatExport", () => {
   it("parses normal messages", () => {
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       "15/09/26, 10:32 am - Alice: Hello\n15/09/26, 10:33 am - Bob: Hi there",
     );
     expect(messages).toHaveLength(2);
@@ -55,7 +55,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("joins continuation lines into multiline messages", () => {
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       "15/09/26, 10:32 am - Alice: Line one\nLine two\nLine three\n15/09/26, 10:33 am - Bob: Next",
     );
     expect(messages).toHaveLength(2);
@@ -64,7 +64,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("keeps emoji and URLs", () => {
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       "15/09/26, 10:32 am - Alice: Hello 🎉\nhttps://example.com/book",
     );
     expect(messages[0].text).toContain("🎉");
@@ -72,7 +72,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("parses group senders", () => {
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       [
         '15/09/26, 10:32 am - Neeraj created group "Family"',
         "15/09/26, 10:33 am - Neeraj: Welcome",
@@ -87,7 +87,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("detects system, deleted, and encryption notices", () => {
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       [
         "15/09/26, 10:32 am - Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them. *Learn more*",
         "15/09/26, 10:33 am - Alice: You deleted this message",
@@ -103,7 +103,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("parses media placeholders and attachments", () => {
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       [
         "15/09/26, 10:32 am - Alice: IMG-20260915-WA0001.jpg (file attached)",
         "caption here",
@@ -123,7 +123,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("handles unicode names and malformed lines", () => {
-    const { messages, warnings } = parseWhatsAppChat(
+    const { messages, warnings } = parseChatExport(
       [
         "not a message yet",
         "15/09/26, 10:32 am - प्रिया दीदी: नमस्ते",
@@ -140,14 +140,14 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("keeps Odia text on the same message as the sender", () => {
-    const { messages } = parseWhatsAppChat("10/08/25, 12:20 pm - Alice: sorry, ଯେତେବେଳେ");
+    const { messages } = parseChatExport("10/08/25, 12:20 pm - Alice: sorry, ଯେତେବେଳେ");
     expect(messages[0].sender).toBe("Alice");
     expect(messages[0].isSystem).toBe(false);
     expect(messages[0].text).toContain("sorry");
   });
 
   it("parses empty-body messages that end with a colon", () => {
-    const { messages } = parseWhatsAppChat("15/09/26, 10:32 am - Alice:\n15/09/26, 10:33 am - Bob: Hi");
+    const { messages } = parseChatExport("15/09/26, 10:32 am - Alice:\n15/09/26, 10:33 am - Bob: Hi");
     expect(messages[0].isSystem).toBe(false);
     expect(messages[0].sender).toBe("Alice");
     expect(messages[0].text).toBe("");
@@ -155,7 +155,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("does not treat user messages containing system-like phrases as system", () => {
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       "22/02/21, 3:08 pm - Alice: I have added you as a beneficiary and sent money",
     );
     expect(messages[0].isSystem).toBe(false);
@@ -164,7 +164,7 @@ describe("parseWhatsAppChat", () => {
   });
 
   it("marks edited messages", () => {
-    const { messages } = parseWhatsAppChat("15/09/26, 10:32 am - Alice: Hello <This message was edited>");
+    const { messages } = parseChatExport("15/09/26, 10:32 am - Alice: Hello <This message was edited>");
     expect(messages[0].isEdited).toBe(true);
     expect(messages[0].text).toBe("Hello");
   });
@@ -188,7 +188,7 @@ describe("helpers", () => {
 describe("orphan media", () => {
   it("attaches leftover ZIP photos to blank caption messages on the same day", async () => {
     const { attachOrphanMedia } = await import("../server/parser.js");
-    const { messages } = parseWhatsAppChat(
+    const { messages } = parseChatExport(
       "18/08/25, 3:37 pm - Alice:\n18/08/25, 3:38 pm - Alice: hello\n06/09/25, 7:55 pm - Alice:\n",
     );
     const linked = attachOrphanMedia(messages, ["IMG-20250818-WA0020.jpg", "IMG-20250906-WA0005.jpg", "notes.txt"]);

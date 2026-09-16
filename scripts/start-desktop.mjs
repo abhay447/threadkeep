@@ -35,6 +35,6 @@ const electron = spawnSync("npx", ["electron", "."], {
   cwd: root,
   stdio: "inherit",
   shell: process.platform === "win32",
-  env: { ...process.env, WA_NO_OPEN: "1" },
+  env: { ...process.env, THREADKEEP_NO_OPEN: "1" },
 });
 process.exit(electron.status ?? 0);

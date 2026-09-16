@@ -12,5 +12,5 @@ if [ ! -d node_modules ]; then
   npm install
 fi
 
-echo "Starting WhatsApp Archive Viewer..."
+echo "Starting Threadkeep..."
 npm start

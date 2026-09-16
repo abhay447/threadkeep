@@ -1,6 +1,6 @@
 # Development
 
-How to run, test, and package WhatsApp Archive Viewer from source. User instructions live in [README.md](README.md). Agent constraints live in [AGENTS.md](AGENTS.md).
+How to run, test, and package Threadkeep from source. User instructions live in [README.md](README.md). Agent constraints live in [AGENTS.md](AGENTS.md).
 
 ## Requirements
 
@@ -34,17 +34,17 @@ npm start
 - `scripts/package-binaries.mjs` — `vite` + `esbuild` + `electron-builder`
 - `tests/` — synthetic ZIP fixtures (Alice/Bob), no real chats
 
-The UI talks only to the local API. Electron loads `http://127.0.0.1:4783` and does not open the system browser (`WA_NO_OPEN=1`).
+The UI talks only to the local API. Electron loads `http://127.0.0.1:4783` and does not open the system browser (`THREADKEEP_NO_OPEN=1`).
 
 ## Data directory
 
 Index, `config.json`, and `cache/media` go to the OS user-data folder, never next to the source or packaged binaries:
 
-- Windows: `%APPDATA%\WhatsAppArchiveViewer`
-- macOS: `~/Library/Application Support/WhatsAppArchiveViewer`
-- Linux: `~/.config/whatsapp-archive-viewer`
+- Windows: `%APPDATA%\Threadkeep`
+- macOS: `~/Library/Application Support/Threadkeep`
+- Linux: `~/.config/threadkeep`
 
-`WA_ARCHIVE_DATA_DIR` may point somewhere else **outside** the repo. A path inside the project (including `.localdata`) is ignored.
+`THREADKEEP_DATA_DIR` may point somewhere else **outside** the repo. A path inside the project (including `.localdata`) is ignored.
 
 Gitignored: `node_modules/`, `dist/`, `build/`, `release/`, `.localdata/`.
 
@@ -52,13 +52,13 @@ Gitignored: `node_modules/`, `dist/`, `build/`, `release/`, `.localdata/`.
 
 | Variable | Purpose |
 | --- | --- |
-| `WA_ARCHIVE_DATA_DIR` | Override index location (must be outside the repo) |
-| `WA_NO_OPEN` | Do not open a system browser |
-| `WA_SKIP_BUILD` | Skip building the frontend on server start |
-| `WA_FRONTEND_DIR` | Directory that contains `index.html` |
-| `WA_PACKAGED` | Set by packaged Electron |
-| `WA_ALLOW_PATH` | Tests only: allow posting a folder path without the native picker |
-| `WA_TEST_SERVER` | Tests only: start without binding extra listeners |
+| `THREADKEEP_DATA_DIR` | Override index location (must be outside the repo) |
+| `THREADKEEP_NO_OPEN` | Do not open a system browser |
+| `THREADKEEP_SKIP_BUILD` | Skip building the frontend on server start |
+| `THREADKEEP_FRONTEND_DIR` | Directory that contains `index.html` |
+| `THREADKEEP_PACKAGED` | Set by packaged Electron |
+| `THREADKEEP_ALLOW_PATH` | Tests only: allow posting a folder path without the native picker |
+| `THREADKEEP_TEST_SERVER` | Tests only: start without binding extra listeners |
 | `PORT` | Default `4783` |
 
 ## Packaging
@@ -68,7 +68,7 @@ npm install
 npm run build:binaries
 ```
 
-Writes `release/whatsapp-archive-viewer-win-x64.zip`, Linux AppImage and `tar.gz`, and (on a Mac) `whatsapp-archive-viewer-mac-arm64.zip`. Those artifacts are not committed.
+Writes `release/threadkeep-win-x64.zip`, Linux AppImage and `tar.gz`, and (on a Mac) `threadkeep-mac-arm64.zip`. Those artifacts are not committed.
 
 Windows: keep the unzipped `.exe` next to its DLLs. Linux: `chmod +x` the AppImage. Mac: unsigned Apple Silicon zip; Control-click **Open** the first time. The Mac zip is built on GitHub’s `macos-14` runner, not from Linux.
 
@@ -87,7 +87,7 @@ node scripts/package-binaries.mjs --mac zip --arm64
 Push an annotated version tag. GitHub Actions builds Windows, Linux, and Apple Silicon Mac apps and publishes them on the Releases page.
 
 ```bash
-git tag -a v1.1.0 -m "WhatsApp Archive Viewer 1.1.0"
+git tag -a v1.1.0 -m "Threadkeep 1.1.0"
 git push origin v1.1.0
 ```
 
@@ -95,4 +95,4 @@ git push origin v1.1.0
 
 - Incremental import skips unchanged ZIPs (content hash). Parser changes that should re-parse existing chats need a wipe of the data dir, then a reindex.
 - Duplicate ZIPs of the same chat: one is kept, the other is skipped.
-- Blank export lines with a file in the ZIP are linked as orphan media. Remaining blanks are unsupported types WhatsApp omitted from the export, not missed calls.
+- Blank export lines with a file in the ZIP are linked as orphan media. Remaining blanks are unsupported types omitted from the export, not missed calls.

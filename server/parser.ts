@@ -1,7 +1,7 @@
 import type { MessageType, ParsedAttachment, ParsedMessage, ParseResult, ParseWarning } from "./types.js";
 
 /**
- * WhatsApp TXT exports vary by OS and locale. This parser detects a message
+ * Chat TXT exports vary by OS and locale. This parser detects a message
  * start line by timestamp, then treats following unmatched lines as
  * continuations of the current message.
  */
@@ -74,7 +74,7 @@ function toHour24(hour: number, ampm: string | undefined): number {
 function interpretDayMonth(first: number, second: number): { day: number; month: number } {
   if (first > 12 && second <= 12) return { day: first, month: second };
   if (second > 12 && first <= 12) return { day: second, month: first };
-  // Ambiguous: WhatsApp Android India/EU exports are DD/MM.
+  // Ambiguous: Android India/EU chat exports are DD/MM.
   return { day: first, month: second };
 }
 
@@ -241,7 +241,7 @@ function finalizeMessage(partial: ParsedMessage): ParsedMessage {
   };
 }
 
-export function parseWhatsAppChat(source: string): ParseResult {
+export function parseChatExport(source: string): ParseResult {
   const text = source.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const lines = text.split("\n");
   const messages: ParsedMessage[] = [];
@@ -353,7 +353,7 @@ const ORPHAN_MEDIA_EXT = new Set([
 ]);
 
 /**
- * WhatsApp sometimes writes a blank caption for photos/docs that still exist
+ * Some exports write a blank caption for photos/docs that still exist
  * in the ZIP. Attach those leftover files to empty messages on the same day.
  */
 export function attachOrphanMedia(messages: ParsedMessage[], entryNames: string[]): number {

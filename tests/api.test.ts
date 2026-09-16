@@ -21,15 +21,15 @@ describe("app flows", () => {
   let dataDir: string;
   let archiveDir: string;
   let app: Awaited<ReturnType<typeof createApp>>;
-  const previousData = process.env.WA_ARCHIVE_DATA_DIR;
-  const previousAllow = process.env.WA_ALLOW_PATH;
+  const previousData = process.env.THREADKEEP_DATA_DIR;
+  const previousAllow = process.env.THREADKEEP_ALLOW_PATH;
 
   beforeEach(async () => {
-    dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wa-api-"));
-    archiveDir = fs.mkdtempSync(path.join(os.tmpdir(), "wa-api-archive-"));
-    process.env.WA_ARCHIVE_DATA_DIR = dataDir;
-    process.env.WA_ALLOW_PATH = "1";
-    process.env.WA_SKIP_BUILD = "1";
+    dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "tk-api-"));
+    archiveDir = fs.mkdtempSync(path.join(os.tmpdir(), "tk-api-archive-"));
+    process.env.THREADKEEP_DATA_DIR = dataDir;
+    process.env.THREADKEEP_ALLOW_PATH = "1";
+    process.env.THREADKEEP_SKIP_BUILD = "1";
     closeDb();
     writeZip(path.join(archiveDir, "WhatsApp Chat with Alice.zip"), {
       "WhatsApp Chat with Alice.txt":
@@ -41,10 +41,10 @@ describe("app flows", () => {
 
   afterEach(() => {
     closeDb();
-    if (previousData) process.env.WA_ARCHIVE_DATA_DIR = previousData;
-    else delete process.env.WA_ARCHIVE_DATA_DIR;
-    if (previousAllow) process.env.WA_ALLOW_PATH = previousAllow;
-    else delete process.env.WA_ALLOW_PATH;
+    if (previousData) process.env.THREADKEEP_DATA_DIR = previousData;
+    else delete process.env.THREADKEEP_DATA_DIR;
+    if (previousAllow) process.env.THREADKEEP_ALLOW_PATH = previousAllow;
+    else delete process.env.THREADKEEP_ALLOW_PATH;
     fs.rmSync(dataDir, { recursive: true, force: true });
     fs.rmSync(archiveDir, { recursive: true, force: true });
   });
@@ -59,7 +59,7 @@ describe("app flows", () => {
   }
 
   it("accepts a pasted folder path without a system picker", async () => {
-    delete process.env.WA_ALLOW_PATH;
+    delete process.env.THREADKEEP_ALLOW_PATH;
     const select = await request(app).post("/api/select-folder").send({ path: archiveDir });
     expect(select.status).toBe(200);
     expect(select.body.archivePath).toBe(archiveDir);

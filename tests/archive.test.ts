@@ -18,23 +18,23 @@ function writeZip(filePath: string, files: Record<string, string | Uint8Array>) 
   fs.writeFileSync(filePath, zipSync(encoded));
 }
 
-const previousDataDir = process.env.WA_ARCHIVE_DATA_DIR;
+const previousDataDir = process.env.THREADKEEP_DATA_DIR;
 
 describe("archive import", () => {
   let dataDir: string;
   let archiveDir: string;
 
   beforeEach(() => {
-    dataDir = tempDir("wa-data-");
-    archiveDir = tempDir("wa-archive-");
-    process.env.WA_ARCHIVE_DATA_DIR = dataDir;
+    dataDir = tempDir("tk-data-");
+    archiveDir = tempDir("tk-archive-");
+    process.env.THREADKEEP_DATA_DIR = dataDir;
     closeDb();
   });
 
   afterEach(() => {
     closeDb();
-    if (previousDataDir) process.env.WA_ARCHIVE_DATA_DIR = previousDataDir;
-    else delete process.env.WA_ARCHIVE_DATA_DIR;
+    if (previousDataDir) process.env.THREADKEEP_DATA_DIR = previousDataDir;
+    else delete process.env.THREADKEEP_DATA_DIR;
     fs.rmSync(dataDir, { recursive: true, force: true });
     fs.rmSync(archiveDir, { recursive: true, force: true });
   });
@@ -137,9 +137,9 @@ describe("search", () => {
   let archiveDir: string;
 
   beforeEach(async () => {
-    dataDir = tempDir("wa-search-");
-    archiveDir = tempDir("wa-search-archive-");
-    process.env.WA_ARCHIVE_DATA_DIR = dataDir;
+    dataDir = tempDir("tk-search-");
+    archiveDir = tempDir("tk-search-archive-");
+    process.env.THREADKEEP_DATA_DIR = dataDir;
     closeDb();
     writeZip(path.join(archiveDir, "WhatsApp Chat with Alice.zip"), {
       "WhatsApp Chat with Alice.txt": [
@@ -156,8 +156,8 @@ describe("search", () => {
 
   afterEach(() => {
     closeDb();
-    if (previousDataDir) process.env.WA_ARCHIVE_DATA_DIR = previousDataDir;
-    else delete process.env.WA_ARCHIVE_DATA_DIR;
+    if (previousDataDir) process.env.THREADKEEP_DATA_DIR = previousDataDir;
+    else delete process.env.THREADKEEP_DATA_DIR;
     fs.rmSync(dataDir, { recursive: true, force: true });
     fs.rmSync(archiveDir, { recursive: true, force: true });
   });

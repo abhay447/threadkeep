@@ -106,7 +106,7 @@ export async function createApp() {
   app.post("/api/import", async (req, res) => {
     const config = loadConfig();
     const archivePath =
-      process.env.WA_ALLOW_PATH === "1" && typeof req.body?.path === "string"
+      process.env.THREADKEEP_ALLOW_PATH === "1" && typeof req.body?.path === "string"
         ? toLocalFilesystemPath(req.body.path)
         : config.archivePath;
     if (!archivePath) {
@@ -117,7 +117,7 @@ export async function createApp() {
       res.json({ started: false, alreadyRunning: true });
       return;
     }
-    if (process.env.WA_ALLOW_PATH === "1") {
+    if (process.env.THREADKEEP_ALLOW_PATH === "1") {
       try {
         const report = await importArchive(archivePath);
         res.json({ started: true, report });
@@ -249,7 +249,7 @@ async function openBrowser(url: string): Promise<void> {
 }
 
 export async function startServer(): Promise<{ url: string }> {
-  if (process.env.WA_TEST_SERVER === "1") return { url: listenUrl() };
+  if (process.env.THREADKEEP_TEST_SERVER === "1") return { url: listenUrl() };
   const app = await createApp();
   const server = createServer(app);
   await new Promise<void>((resolve, reject) => {
@@ -257,10 +257,10 @@ export async function startServer(): Promise<{ url: string }> {
     server.on("error", reject);
   });
   const url = listenUrl();
-  process.stdout.write(`WhatsApp Archive Viewer is running at ${url}\n`);
+  process.stdout.write(`Threadkeep is running at ${url}\n`);
   process.stdout.write("Your data stays on this computer and is never uploaded.\n");
   const inElectron = Boolean(process.versions.electron);
-  if (process.env.WA_NO_OPEN !== "1" && !inElectron) {
+  if (process.env.THREADKEEP_NO_OPEN !== "1" && !inElectron) {
     openBrowser(url).catch(() => undefined);
   }
   return { url };

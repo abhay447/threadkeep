@@ -5,7 +5,7 @@ import {
   isGroupChat,
   looksLikeChatTranscript,
   mimeFromFilename,
-  parseWhatsAppChat,
+  parseChatExport,
   attachOrphanMedia,
   uniqueSenders,
 } from "./parser.js";
@@ -398,7 +398,7 @@ async function importOneZip(
   }
   if (source.charCodeAt(0) === 0xfeff) source = source.slice(1);
 
-  const parsed = parseWhatsAppChat(source);
+  const parsed = parseChatExport(source);
   if (!parsed.messages.length) {
     upsertArchiveFile({
       path: zipPath,

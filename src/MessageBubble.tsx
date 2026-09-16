@@ -7,7 +7,7 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function formatWhatsAppText(text: string, highlight?: string): string {
+function formatMessageText(text: string, highlight?: string): string {
   let value = escapeHtml(text);
   value = value.replace(/\*(.+?)\*/g, "<strong>$1</strong>");
   value = value.replace(/_(.+?)_/g, "<em>$1</em>");
@@ -50,8 +50,8 @@ function typeLabel(type: MessageType): string {
 }
 
 export function MessageText({ text, highlight }: { text: string; highlight?: string }) {
-  const html = useMemo(() => formatWhatsAppText(text, highlight), [text, highlight]);
-  return <div className="whitespace-pre-wrap break-words text-[14.5px] leading-[19px] text-wa-ink dark:text-wa-ink-dark" dangerouslySetInnerHTML={{ __html: html }} />;
+  const html = useMemo(() => formatMessageText(text, highlight), [text, highlight]);
+  return <div className="whitespace-pre-wrap break-words text-[14.5px] leading-[19px] text-tk-ink dark:text-tk-ink-dark" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 export function MediaBlock({
@@ -66,7 +66,7 @@ export function MediaBlock({
   const attachment = message.attachment;
   if (!attachment) return null;
   if (attachment.omitted) {
-    return <div className="text-sm italic text-wa-muted dark:text-wa-muted-dark">Media omitted from this export</div>;
+    return <div className="text-sm italic text-tk-muted dark:text-tk-muted-dark">Media omitted from this export</div>;
   }
 
   if (message.type === "image" || message.type === "sticker") {
@@ -110,17 +110,17 @@ export function MediaBlock({
 
   return (
     <div className="flex min-w-[220px] items-center gap-3 rounded-lg bg-black/5 px-3 py-2 dark:bg-white/5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-wa-green text-sm font-semibold text-white">
+      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-tk-green text-sm font-semibold text-white">
         {fileGlyph(attachment.filename)}
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{attachment.filename || typeLabel(message.type)}</div>
-        <div className="text-xs text-wa-muted dark:text-wa-muted-dark">
+        <div className="text-xs text-tk-muted dark:text-tk-muted-dark">
           {[attachment.mimeType?.split("/")[1]?.toUpperCase(), formatBytes(attachment.size)].filter(Boolean).join(" · ")}
         </div>
       </div>
       <a
-        className="rounded-full px-2 py-1 text-xs font-medium text-wa-green-dark hover:bg-black/5 dark:text-wa-accent dark:hover:bg-white/5"
+        className="rounded-full px-2 py-1 text-xs font-medium text-tk-green-dark hover:bg-black/5 dark:text-tk-accent dark:hover:bg-white/5"
         href={mediaDownloadUrl(attachment.id)}
       >
         Save
@@ -204,7 +204,7 @@ function AudioPlayer({ attachment }: { attachment: AttachmentRow }) {
       <button
         type="button"
         onClick={toggle}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-wa-green text-white"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-tk-green text-white"
         aria-label={playing ? "Pause" : "Play"}
       >
         {playing ? "❚❚" : "▶"}
@@ -212,11 +212,11 @@ function AudioPlayer({ attachment }: { attachment: AttachmentRow }) {
       <div className="flex-1">
         <div className="h-1 overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
           <div
-            className="h-full bg-wa-green"
+            className="h-full bg-tk-green"
             style={{ width: duration ? `${Math.min(100, (progress / duration) * 100)}%` : "0%" }}
           />
         </div>
-        <div className="mt-1 text-[11px] text-wa-muted dark:text-wa-muted-dark">{stamp(playing || progress ? progress : duration)}</div>
+        <div className="mt-1 text-[11px] text-tk-muted dark:text-tk-muted-dark">{stamp(playing || progress ? progress : duration)}</div>
       </div>
       {ready ? <audio ref={audioRef} src={mediaUrl(attachment.id)} preload="metadata" /> : null}
     </div>
@@ -240,7 +240,7 @@ export function MessageBubble({
 }) {
   if (message.isSystem) {
     return (
-      <div className="mx-auto max-w-[80%] rounded-lg bg-[#ffeaa7]/90 px-3 py-1.5 text-center text-[12.5px] font-medium text-wa-ink shadow-bubble dark:bg-[#182229] dark:text-wa-ink-dark">
+      <div className="mx-auto max-w-[80%] rounded-lg bg-[#ffeaa7]/90 px-3 py-1.5 text-center text-[12.5px] font-medium text-tk-ink shadow-bubble dark:bg-[#182229] dark:text-tk-ink-dark">
         {message.text.replace(/\*Learn more\*/i, "").trim()}
       </div>
     );
@@ -253,12 +253,12 @@ export function MessageBubble({
         <div
           className={`max-w-[75%] rounded-lg px-2 py-1.5 italic shadow-bubble ${
             mine
-              ? "bubble-out rounded-tr-none bg-wa-out dark:bg-wa-out-dark"
-              : "bubble-in rounded-tl-none bg-wa-in dark:bg-wa-in-dark"
+              ? "bubble-out rounded-tr-none bg-tk-out dark:bg-tk-out-dark"
+              : "bubble-in rounded-tl-none bg-tk-in dark:bg-tk-in-dark"
           }`}
         >
-          <div className="text-[13.5px] text-wa-muted dark:text-wa-muted-dark">This message is not supported</div>
-          <div className="mt-0.5 flex items-center justify-end text-[11px] text-wa-muted dark:text-wa-muted-dark">
+          <div className="text-[13.5px] text-tk-muted dark:text-tk-muted-dark">This message is not supported</div>
+          <div className="mt-0.5 flex items-center justify-end text-[11px] text-tk-muted dark:text-tk-muted-dark">
             {formatClock(message.timestamp)}
           </div>
         </div>
@@ -272,15 +272,15 @@ export function MessageBubble({
       <div
         className={`max-w-[75%] rounded-lg px-2 py-1.5 shadow-bubble ${
           mine
-            ? "bubble-out rounded-tr-none bg-wa-out dark:bg-wa-out-dark"
-            : "bubble-in rounded-tl-none bg-wa-in dark:bg-wa-in-dark"
+            ? "bubble-out rounded-tr-none bg-tk-out dark:bg-tk-out-dark"
+            : "bubble-in rounded-tl-none bg-tk-in dark:bg-tk-in-dark"
         } ${highlighted ? "ring-2 ring-amber-400" : ""}`}
       >
         {showSender && message.sender ? (
-          <div className="mb-0.5 text-[12.5px] font-semibold text-wa-green-dark dark:text-wa-accent">{message.sender}</div>
+          <div className="mb-0.5 text-[12.5px] font-semibold text-tk-green-dark dark:text-tk-accent">{message.sender}</div>
         ) : null}
         {message.isDeleted ? (
-          <div className="italic text-wa-muted dark:text-wa-muted-dark">This message was deleted</div>
+          <div className="italic text-tk-muted dark:text-tk-muted-dark">This message was deleted</div>
         ) : (
           <>
             {message.attachment ? <MediaBlock message={message} onOpenImage={onOpenImage} onMediaLoaded={onMediaLoaded} /> : null}
@@ -289,10 +289,10 @@ export function MessageBubble({
                 <MessageText text={message.text} highlight={highlight} />
               </div>
             ) : null}
-            {message.isEdited ? <div className="text-[11px] italic text-wa-muted">edited</div> : null}
+            {message.isEdited ? <div className="text-[11px] italic text-tk-muted">edited</div> : null}
           </>
         )}
-        <div className="mt-0.5 flex items-center justify-end gap-1 text-[11px] font-medium text-wa-muted dark:text-wa-muted-dark">
+        <div className="mt-0.5 flex items-center justify-end gap-1 text-[11px] font-medium text-tk-muted dark:text-tk-muted-dark">
           <span>{formatClock(message.timestamp)}</span>
         </div>
       </div>

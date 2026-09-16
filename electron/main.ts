@@ -4,8 +4,8 @@ import { app, BrowserWindow, dialog, Menu, shell } from "electron";
 import { FolderPickCancelled, setFolderPicker } from "../server/folderPicker.js";
 import { startServer, listenUrl } from "../server/index.js";
 
-process.env.WA_NO_OPEN = "1";
-if (app.isPackaged) process.env.WA_PACKAGED = "1";
+process.env.THREADKEEP_NO_OPEN = "1";
+if (app.isPackaged) process.env.THREADKEEP_PACKAGED = "1";
 
 try {
   const wsl =
@@ -28,7 +28,7 @@ function frontendPath(): string {
 
 setFolderPicker(async () => {
   const options = {
-    title: "Select WhatsApp Archive Folder",
+    title: "Select export folder",
     buttonLabel: "Select Folder",
     properties: ["openDirectory" as const],
   };
@@ -43,7 +43,7 @@ function createWindow(url: string): BrowserWindow {
     height: 860,
     minWidth: 800,
     minHeight: 600,
-    title: "WhatsApp Archive",
+    title: "Threadkeep",
     autoHideMenuBar: true,
     show: false,
     backgroundColor: "#0b141a",
@@ -65,7 +65,7 @@ function createWindow(url: string): BrowserWindow {
     if (!allowed) event.preventDefault();
   });
   next.loadURL(url).catch((error) => {
-    dialog.showErrorBox("WhatsApp Archive Viewer", error instanceof Error ? error.message : String(error));
+    dialog.showErrorBox("Threadkeep", error instanceof Error ? error.message : String(error));
   });
   return next;
 }
@@ -83,7 +83,7 @@ if (!gotLock) {
   });
 
   app.whenReady().then(async () => {
-    process.env.WA_FRONTEND_DIR = frontendPath();
+    process.env.THREADKEEP_FRONTEND_DIR = frontendPath();
     try {
       const { url } = await startServer();
       window = createWindow(url);
@@ -94,7 +94,7 @@ if (!gotLock) {
           : error instanceof Error
             ? error.message
             : String(error);
-      dialog.showErrorBox("WhatsApp Archive Viewer", message);
+      dialog.showErrorBox("Threadkeep", message);
       app.quit();
     }
   });

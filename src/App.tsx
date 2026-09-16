@@ -194,7 +194,7 @@ export default function App() {
   const filteredChats = chats.filter((chat) => chat.name.toLowerCase().includes(chatQuery.toLowerCase()));
 
   if (screen === "loading") {
-    return <Centered title="WhatsApp Archive" body="Starting…" />;
+    return <Centered title="Threadkeep" body="Starting…" />;
   }
   if (screen === "error") {
     return (
@@ -212,7 +212,7 @@ export default function App() {
   if (screen === "missing") {
     return (
       <Welcome
-        title="Your WhatsApp archive folder could not be found."
+        title="Your export folder could not be found."
         body={status?.archivePath || "The previously selected folder is missing."}
         browseLabel="Select New Folder"
         onSelect={chooseFolder}
@@ -226,18 +226,18 @@ export default function App() {
   }
 
   return (
-    <div className={`flex h-full bg-wa-shell text-wa-ink dark:bg-wa-shell-dark dark:text-wa-ink-dark ${mobileChatOpen ? "sidebar-collapsed" : "sidebar-open"}`}>
+    <div className={`flex h-full bg-tk-shell text-tk-ink dark:bg-tk-shell-dark dark:text-tk-ink-dark ${mobileChatOpen ? "sidebar-collapsed" : "sidebar-open"}`}>
       {progress && (progress.phase === "scan" || progress.phase === "index") ? (
-        <div className="fixed left-0 right-0 top-0 z-20 bg-wa-green px-4 py-1 text-center text-xs text-white">
+        <div className="fixed left-0 right-0 top-0 z-20 bg-tk-green px-4 py-1 text-center text-xs text-white">
           Updating archive… {progress.percent}%{progress.total ? ` (${progress.current}/${progress.total})` : ""}
         </div>
       ) : null}
-      <div className="mx-auto flex h-full w-full max-w-[1600px] overflow-hidden bg-wa-panel shadow-xl dark:bg-wa-panel-dark">
-        <aside className="sidebar flex w-full max-w-[420px] flex-col border-r border-wa-line dark:border-wa-line-dark md:w-[38%]">
-          <div className="flex h-[60px] items-center justify-between bg-wa-header px-4 text-wa-ink dark:bg-wa-header-dark dark:text-wa-ink-dark">
+      <div className="mx-auto flex h-full w-full max-w-[1600px] overflow-hidden bg-tk-panel shadow-xl dark:bg-tk-panel-dark">
+        <aside className="sidebar flex w-full max-w-[420px] flex-col border-r border-tk-line dark:border-tk-line-dark md:w-[38%]">
+          <div className="flex h-[60px] items-center justify-between bg-tk-header px-4 text-tk-ink dark:bg-tk-header-dark dark:text-tk-ink-dark">
             <div>
-              <div className="font-semibold text-wa-ink dark:text-wa-ink-dark">WhatsApp Archive</div>
-              <div className="text-xs text-wa-muted dark:text-wa-muted-dark">
+              <div className="font-semibold text-tk-ink dark:text-tk-ink-dark">Threadkeep</div>
+              <div className="text-xs text-tk-muted dark:text-tk-muted-dark">
                 {status?.stats.chats.toLocaleString()} chats · local only
               </div>
             </div>
@@ -261,9 +261,9 @@ export default function App() {
               </button>
             </div>
           </div>
-          <div className="bg-wa-panel px-3 py-2 dark:bg-wa-panel-dark">
+          <div className="bg-tk-panel px-3 py-2 dark:bg-tk-panel-dark">
             <input
-              className="w-full rounded-lg bg-wa-search px-3 py-2 text-sm text-wa-ink outline-none placeholder:text-wa-muted dark:bg-wa-search-dark dark:text-wa-ink-dark dark:placeholder:text-wa-muted-dark"
+              className="w-full rounded-lg bg-tk-search px-3 py-2 text-sm text-tk-ink outline-none placeholder:text-tk-muted dark:bg-tk-search-dark dark:text-tk-ink-dark dark:placeholder:text-tk-muted-dark"
               placeholder="Search chats"
               value={chatQuery}
               onChange={(event) => setChatQuery(event.target.value)}
@@ -271,13 +271,13 @@ export default function App() {
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {filteredChats.length === 0 ? (
-              <div className="px-6 py-12 text-center text-sm text-wa-muted">No chats match that search.</div>
+              <div className="px-6 py-12 text-center text-sm text-tk-muted">No chats match that search.</div>
             ) : (
               filteredChats.map((chat) => (
                 <button
                   key={chat.id}
-                  className={`flex w-full items-center gap-3 border-b border-wa-line px-3 py-3 text-left hover:bg-black/5 dark:border-wa-line-dark dark:hover:bg-white/5 ${
-                    chat.id === activeId ? "bg-wa-header dark:bg-[#2a3942]" : ""
+                  className={`flex w-full items-center gap-3 border-b border-tk-line px-3 py-3 text-left hover:bg-black/5 dark:border-tk-line-dark dark:hover:bg-white/5 ${
+                    chat.id === activeId ? "bg-tk-header dark:bg-[#2a3942]" : ""
                   }`}
                   onClick={() => {
                     setActiveId(chat.id);
@@ -294,10 +294,10 @@ export default function App() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <div className="truncate font-medium text-wa-ink dark:text-wa-ink-dark">{chat.name}</div>
-                      <div className="shrink-0 text-[12px] text-wa-muted dark:text-wa-muted-dark">{formatChatListTime(chat.lastMessageAt)}</div>
+                      <div className="truncate font-medium text-tk-ink dark:text-tk-ink-dark">{chat.name}</div>
+                      <div className="shrink-0 text-[12px] text-tk-muted dark:text-tk-muted-dark">{formatChatListTime(chat.lastMessageAt)}</div>
                     </div>
-                    <div className="truncate text-sm text-wa-muted dark:text-wa-muted-dark">
+                    <div className="truncate text-sm text-tk-muted dark:text-tk-muted-dark">
                       {chat.lastMessageSender && chat.isGroup ? `${chat.lastMessageSender}: ` : ""}
                       {chat.lastMessageText || " "}
                     </div>
@@ -323,10 +323,10 @@ export default function App() {
             }}
           />
         ) : (
-          <div className="conversation hidden flex-1 items-center justify-center bg-wa-bg text-wa-muted md:flex dark:bg-wa-bg-dark dark:text-wa-muted-dark">
+          <div className="conversation hidden flex-1 items-center justify-center bg-tk-bg text-tk-muted md:flex dark:bg-tk-bg-dark dark:text-tk-muted-dark">
             <div className="max-w-md px-8 text-center">
               <div className="mb-3 text-3xl">💬</div>
-              <h2 className="mb-2 text-2xl font-light text-wa-ink dark:text-wa-ink-dark">Select a chat</h2>
+              <h2 className="mb-2 text-2xl font-light text-tk-ink dark:text-tk-ink-dark">Select a chat</h2>
               <p className="text-sm">
                 Your archive is processed locally on this computer. No chat data is uploaded or sent to the internet.
               </p>
@@ -343,7 +343,7 @@ export default function App() {
             <div>
               <div className="mb-1 font-medium">Archive folder</div>
               <div className="break-all rounded-lg bg-black/5 px-3 py-2 dark:bg-white/5">{status.archivePath}</div>
-              <button className="mt-2 text-wa-green-dark dark:text-wa-accent" onClick={() => chooseFolder()}>
+              <button className="mt-2 text-tk-green-dark dark:text-tk-accent" onClick={() => chooseFolder()}>
                 Browse for a folder
               </button>
               <FolderPathForm
@@ -358,7 +358,7 @@ export default function App() {
                 {(["system", "light", "dark"] as const).map((value) => (
                   <button
                     key={value}
-                    className={`rounded-full px-3 py-1 capitalize ${theme === value ? "bg-wa-green text-white" : "bg-black/5 dark:bg-white/5"}`}
+                    className={`rounded-full px-3 py-1 capitalize ${theme === value ? "bg-tk-green text-white" : "bg-black/5 dark:bg-white/5"}`}
                     onClick={() => api.setTheme(value).then(refreshStatus)}
                   >
                     {value}
@@ -366,7 +366,7 @@ export default function App() {
                 ))}
               </div>
             </div>
-            <p className="text-wa-muted dark:text-wa-muted-dark">{status.privacy}</p>
+            <p className="text-tk-muted dark:text-tk-muted-dark">{status.privacy}</p>
           </div>
         </Modal>
       ) : null}
@@ -416,23 +416,23 @@ export default function App() {
           </div>
           <div className="max-h-[50vh] overflow-y-auto">
             {searchHits.length === 0 ? (
-              <div className="py-8 text-center text-sm text-wa-muted">
+              <div className="py-8 text-center text-sm text-tk-muted">
                 {searchQ.trim() ? "No matching messages." : "Type to search. Press Esc to close."}
               </div>
             ) : (
               searchHits.map((hit, index) => (
                 <button
                   key={`${hit.chatId}-${hit.messageId}`}
-                  className={`block w-full border-b border-wa-line px-2 py-3 text-left dark:border-wa-line-dark ${
+                  className={`block w-full border-b border-tk-line px-2 py-3 text-left dark:border-tk-line-dark ${
                     index === searchIndex ? "bg-black/5 dark:bg-white/5" : ""
                   }`}
                   onClick={() => openHit(hit)}
                 >
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{hit.chatName}</span>
-                    <span className="text-wa-muted">{formatChatListTime(hit.timestamp)}</span>
+                    <span className="text-tk-muted">{formatChatListTime(hit.timestamp)}</span>
                   </div>
-                  <div className="text-xs text-wa-muted">{hit.sender}</div>
+                  <div className="text-xs text-tk-muted">{hit.sender}</div>
                   <div className="text-sm" dangerouslySetInnerHTML={renderSnippet(hit.snippet)} />
                 </button>
               ))
@@ -452,12 +452,12 @@ export default function App() {
             </p>
             {progress.report.skippedFiles.length ? (
               <details>
-                <summary className="cursor-pointer text-wa-green-dark">View skipped files</summary>
+                <summary className="cursor-pointer text-tk-green-dark">View skipped files</summary>
                 <ul className="mt-2 max-h-48 overflow-auto text-xs">
                   {progress.report.skippedFiles.map((file) => (
-                    <li key={file.filename} className="border-t border-wa-line py-2 dark:border-wa-line-dark">
+                    <li key={file.filename} className="border-t border-tk-line py-2 dark:border-tk-line-dark">
                       <div className="font-medium">{file.filename}</div>
-                      <div className="text-wa-muted">{file.reason}</div>
+                      <div className="text-tk-muted">{file.reason}</div>
                     </li>
                   ))}
                 </ul>
@@ -474,9 +474,9 @@ function Welcome({
   onSelect,
   busy,
   error,
-  title = "WhatsApp Archive",
-  body = "Choose the folder of WhatsApp Export chat ZIP files. Everything stays on this computer.",
-  browseLabel = "Select WhatsApp Archive Folder",
+  title = "Threadkeep",
+  body = "Choose the folder of exported chat ZIP files. Everything stays on this computer.",
+  browseLabel = "Select export folder",
 }: {
   onSelect: (folderPath?: string) => void;
   busy: "off" | "picker" | "path";
@@ -488,24 +488,24 @@ function Welcome({
   const pickerOpen = busy === "picker";
   const pathOpen = busy === "path";
   return (
-    <div className="flex h-full items-center justify-center bg-wa-bg dark:bg-wa-bg-dark">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-10 text-center text-wa-ink shadow-xl dark:bg-wa-panel-dark dark:text-wa-ink-dark">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-wa-green text-3xl text-white">
+    <div className="flex h-full items-center justify-center bg-tk-bg dark:bg-tk-bg-dark">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-10 text-center text-tk-ink shadow-xl dark:bg-tk-panel-dark dark:text-tk-ink-dark">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-tk-green text-3xl text-white">
           💬
         </div>
-        <h1 className="mb-3 text-3xl font-light text-wa-ink dark:text-wa-ink-dark">{title}</h1>
-        <p className="mb-2 break-all text-wa-muted dark:text-wa-muted-dark">{body}</p>
-        <p className="mb-6 text-sm text-wa-muted dark:text-wa-muted-dark">
+        <h1 className="mb-3 text-3xl font-light text-tk-ink dark:text-tk-ink-dark">{title}</h1>
+        <p className="mb-2 break-all text-tk-muted dark:text-tk-muted-dark">{body}</p>
+        <p className="mb-6 text-sm text-tk-muted dark:text-tk-muted-dark">
           Your data stays on this computer and is never uploaded.
         </p>
         <button
-          className="rounded-full bg-wa-green px-5 py-2.5 font-medium text-white disabled:opacity-60"
+          className="rounded-full bg-tk-green px-5 py-2.5 font-medium text-white disabled:opacity-60"
           onClick={() => onSelect()}
           disabled={busy !== "off"}
         >
           {pickerOpen ? "Look for the folder window…" : pathOpen ? "Opening…" : browseLabel}
         </button>
-        <p className="mt-5 text-xs text-wa-muted dark:text-wa-muted-dark">
+        <p className="mt-5 text-xs text-tk-muted dark:text-tk-muted-dark">
           A folder window should open. If it does not, paste the folder path below.
         </p>
         <FolderPathForm busy={busy} onOpen={(folderPath) => onSelect(folderPath)} />
@@ -518,7 +518,7 @@ function Welcome({
 function FolderPathForm({
   busy,
   onOpen,
-  placeholder = "Folder path, for example C:\\Users\\You\\WhatsApp export",
+  placeholder = "Folder path, for example C:\\Users\\You\\Chat exports",
 }: {
   busy: "off" | "picker" | "path";
   onOpen: (folderPath: string) => void;
@@ -551,7 +551,7 @@ function FolderPathForm({
       />
       <button
         type="submit"
-        className="mt-2 w-full rounded-full border border-wa-green px-5 py-2 text-sm font-medium text-wa-green-dark disabled:opacity-60 dark:text-wa-accent"
+        className="mt-2 w-full rounded-full border border-tk-green px-5 py-2 text-sm font-medium text-tk-green-dark disabled:opacity-60 dark:text-tk-accent"
         disabled={locked || !folderPath.trim()}
       >
         {locked ? "Opening…" : "Open this folder"}
@@ -563,21 +563,21 @@ function FolderPathForm({
 function ImportScreen({ progress }: { progress: ImportProgress | null }) {
   const percent = progress?.percent ?? 0;
   return (
-    <div className="flex h-full items-center justify-center bg-wa-bg dark:bg-wa-bg-dark">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-10 shadow-xl dark:bg-wa-panel-dark">
+    <div className="flex h-full items-center justify-center bg-tk-bg dark:bg-tk-bg-dark">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-10 shadow-xl dark:bg-tk-panel-dark">
         <h1 className="mb-2 text-2xl font-light">Indexing your chats</h1>
-        <p className="mb-6 text-sm text-wa-muted dark:text-wa-muted-dark">
+        <p className="mb-6 text-sm text-tk-muted dark:text-tk-muted-dark">
           {progress?.found ? `Found ${progress.found} chat exports` : "Looking for chat exports…"}
         </p>
         <div className="mb-2 h-2 overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
-          <div className="h-full bg-wa-green transition-all" style={{ width: `${percent}%` }} />
+          <div className="h-full bg-tk-green transition-all" style={{ width: `${percent}%` }} />
         </div>
         <p className="text-sm">
           {percent}%{progress?.total ? ` — ${progress.current} / ${progress.total}` : ""}
         </p>
-        <p className="mt-2 text-xs text-wa-muted">This may take a few minutes the first time.</p>
+        <p className="mt-2 text-xs text-tk-muted">This may take a few minutes the first time.</p>
         {progress?.currentFile ? (
-          <p className="mt-3 truncate text-xs text-wa-muted">Current: {progress.currentFile}</p>
+          <p className="mt-3 truncate text-xs text-tk-muted">Current: {progress.currentFile}</p>
         ) : null}
       </div>
     </div>
@@ -598,12 +598,12 @@ function Centered({
   busy?: boolean;
 }) {
   return (
-    <div className="flex h-full items-center justify-center bg-wa-bg dark:bg-wa-bg-dark">
-      <div className="max-w-lg rounded-2xl bg-white p-10 text-center shadow-xl dark:bg-wa-panel-dark">
+    <div className="flex h-full items-center justify-center bg-tk-bg dark:bg-tk-bg-dark">
+      <div className="max-w-lg rounded-2xl bg-white p-10 text-center shadow-xl dark:bg-tk-panel-dark">
         <h1 className="mb-3 text-2xl font-light">{title}</h1>
-        <p className="mb-6 break-all text-sm text-wa-muted dark:text-wa-muted-dark">{body}</p>
+        <p className="mb-6 break-all text-sm text-tk-muted dark:text-tk-muted-dark">{body}</p>
         {action && onAction ? (
-          <button className="rounded-full bg-wa-green px-5 py-2.5 text-white disabled:opacity-60" onClick={onAction} disabled={busy}>
+          <button className="rounded-full bg-tk-green px-5 py-2.5 text-white disabled:opacity-60" onClick={onAction} disabled={busy}>
             {busy ? "Working…" : action}
           </button>
         ) : null}
@@ -616,7 +616,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   return (
     <div className="fixed inset-0 z-40 flex items-start justify-center bg-black/40 p-4 pt-16" onClick={onClose}>
       <div
-        className="w-full max-w-2xl rounded-xl bg-white p-5 shadow-2xl dark:bg-wa-panel-dark"
+        className="w-full max-w-2xl rounded-xl bg-white p-5 shadow-2xl dark:bg-tk-panel-dark"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -624,7 +624,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-medium">{title}</h2>
-          <button className="text-wa-muted" onClick={onClose} aria-label="Close">
+          <button className="text-tk-muted" onClick={onClose} aria-label="Close">
             ✕
           </button>
         </div>
@@ -636,7 +636,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 
 function ChatInfo({ chat, onClose }: { chat: ChatSummary; onClose: () => void }) {
   return (
-    <aside className="hidden w-[320px] border-l border-wa-line bg-wa-panel p-5 md:block dark:border-wa-line-dark dark:bg-wa-panel-dark">
+    <aside className="hidden w-[320px] border-l border-tk-line bg-tk-panel p-5 md:block dark:border-tk-line-dark dark:bg-tk-panel-dark">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-medium">Chat info</h2>
         <button onClick={onClose} aria-label="Close info">
@@ -645,7 +645,7 @@ function ChatInfo({ chat, onClose }: { chat: ChatSummary; onClose: () => void })
       </div>
       <div className="space-y-3 text-sm">
         <div>
-          <div className="text-xs text-wa-muted">Name</div>
+          <div className="text-xs text-tk-muted">Name</div>
           <div className="font-medium">{chat.name}</div>
         </div>
         <div>{chat.isGroup ? "Group chat" : "Personal chat"}</div>
@@ -657,7 +657,7 @@ function ChatInfo({ chat, onClose }: { chat: ChatSummary; onClose: () => void })
         {chat.firstMessageAt ? <div>First message {new Date(chat.firstMessageAt).toLocaleDateString()}</div> : null}
         {chat.lastMessageAt ? <div>Last message {new Date(chat.lastMessageAt).toLocaleDateString()}</div> : null}
         <div>
-          <div className="mb-1 text-xs text-wa-muted">Participants ({chat.participants.length})</div>
+          <div className="mb-1 text-xs text-tk-muted">Participants ({chat.participants.length})</div>
           <ul className="max-h-64 overflow-auto">
             {chat.participants.map((name) => (
               <li key={name} className="py-1">

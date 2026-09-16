@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title WhatsApp Archive Viewer
+title Threadkeep
 cd /d "%~dp0"
 
 where node >nul 2>nul
@@ -29,7 +29,7 @@ if not exist "node_modules" (
   )
 )
 
-echo Starting WhatsApp Archive Viewer...
+echo Starting Threadkeep...
 call npm start
 if %errorlevel% neq 0 pause
 goto end
