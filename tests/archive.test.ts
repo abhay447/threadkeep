@@ -50,6 +50,22 @@ describe("archive import", () => {
     expect(getMessages(chats[0].id, 0, 20)).toHaveLength(2);
   });
 
+  it("names an iPhone export from the ZIP filename instead of _chat.txt", async () => {
+    writeZip(path.join(archiveDir, "WhatsApp Chat - Alice.zip"), {
+      "_chat.txt": "[15/09/26, 10:32:11] Alice: Hello\n[15/09/26, 10:33:12] You: Hi",
+    });
+    await importArchive(archiveDir);
+    expect(listChats()[0].name).toBe("Alice");
+  });
+
+  it("names an iPhone 1:1 export from the other sender when the ZIP title is generic", async () => {
+    writeZip(path.join(archiveDir, "WhatsApp Chat.zip"), {
+      "_chat.txt": "[15/09/26, 10:32:11] Priya: Hello\n[15/09/26, 10:33:12] You: Hi",
+    });
+    await importArchive(archiveDir);
+    expect(listChats()[0].name).toBe("Priya");
+  });
+
   it("imports media metadata without extracting files", async () => {
     writeZip(path.join(archiveDir, "WhatsApp Chat with Bob.zip"), {
       "WhatsApp Chat with Bob.txt": "15/09/26, 10:32 am - Bob: IMG-20260915-WA0001.jpg (file attached)\nNice photo",

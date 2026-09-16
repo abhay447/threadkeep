@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   chatNameFromFilename,
+  chatNameFromParticipants,
   inspectMessageBody,
   isGroupChat,
   looksLikeChatTranscript,
   matchTimestampLine,
   parseChatExport,
+  resolveChatName,
 } from "../server/parser.js";
 
 describe("timestamp detection", () => {
@@ -174,8 +176,24 @@ describe("helpers", () => {
   it("derives chat names and transcript files", () => {
     expect(chatNameFromFilename("WhatsApp Chat with Alice.zip")).toBe("Alice");
     expect(chatNameFromFilename("WhatsApp Chat with Family Group (1).txt")).toBe("Family Group");
+    expect(chatNameFromFilename("WhatsApp Chat - Alice.zip")).toBe("Alice");
+    expect(chatNameFromFilename("_chat.txt")).toBeNull();
+    expect(chatNameFromFilename("WhatsApp Chat.zip")).toBeNull();
     expect(looksLikeChatTranscript("WhatsApp Chat with Alice.txt")).toBe(true);
+    expect(looksLikeChatTranscript("_chat.txt")).toBe(true);
     expect(looksLikeChatTranscript("notes.txt")).toBe(false);
+  });
+
+  it("names a 1:1 chat from the other participant when the file is generic", () => {
+    expect(chatNameFromParticipants(["You", "Alice"])).toBe("Alice");
+    expect(chatNameFromParticipants(["Mom", "Dad", "You"])).toBeNull();
+    expect(
+      resolveChatName({
+        zipName: "WhatsApp Chat.zip",
+        transcriptName: "_chat.txt",
+        senders: ["You", "Priya"],
+      }),
+    ).toBe("Priya");
   });
 
   it("classifies attachment bodies", () => {

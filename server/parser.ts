@@ -286,14 +286,45 @@ export function parseChatExport(source: string): ParseResult {
   return { messages, warnings };
 }
 
-export function chatNameFromFilename(filename: string): string {
+const GENERIC_CHAT_TITLES = /^(?:_?chat|whatsapp\s+chat)$/i;
+
+export function chatNameFromFilename(filename: string): string | null {
   const base = filename.replace(/\\/g, "/").split("/").pop() || filename;
   const withoutExt = base.replace(/\.(txt|zip)$/i, "");
-  const cleaned = withoutExt.replace(/\s*\(\d+\)$/, "");
-  const match = /^(?:WhatsApp Chat (?:with|de|con|avec|mit|com) )(.+)$/i.exec(cleaned);
-  if (match) return match[1].trim();
-  if (cleaned === "_chat") return "Chat";
-  return cleaned.trim() || "Chat";
+  const cleaned = stripInvisible(withoutExt).replace(/\s*\(\d+\)$/, "").trim();
+  if (!cleaned) return null;
+  const prefixed =
+    /^(?:whatsapp\s+chat\s+(?:with|de|con|avec|mit|com)\s+|whatsapp\s+chat\s*[-–—:]\s*|chat\s+with\s+)(.+)$/i.exec(
+      cleaned,
+    );
+  if (prefixed) {
+    const name = prefixed[1].trim();
+    return name || null;
+  }
+  if (GENERIC_CHAT_TITLES.test(cleaned)) return null;
+  return cleaned;
+}
+
+export function chatNameFromParticipants(senders: string[], ownerName?: string | null): string | null {
+  const others = senders
+    .map((sender) => stripInvisible(sender).trim())
+    .filter((sender) => sender && !/^you$/i.test(sender) && (!ownerName || sender !== ownerName));
+  if (others.length === 1) return others[0];
+  return null;
+}
+
+export function resolveChatName(options: {
+  zipName: string;
+  transcriptName: string;
+  senders: string[];
+  ownerName?: string | null;
+}): string {
+  return (
+    chatNameFromFilename(options.zipName) ||
+    chatNameFromFilename(options.transcriptName) ||
+    chatNameFromParticipants(options.senders, options.ownerName) ||
+    "Chat"
+  );
 }
 
 export function looksLikeChatTranscript(filename: string): boolean {

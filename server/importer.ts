@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
-  chatNameFromFilename,
+  resolveChatName,
   isGroupChat,
   looksLikeChatTranscript,
   mimeFromFilename,
@@ -412,7 +412,12 @@ async function importOneZip(
     return { status: "skipped", reason: "No messages could be parsed from the export" };
   }
 
-  const chatName = chatNameFromFilename(chatTxt) || chatNameFromFilename(filename);
+  const chatName = resolveChatName({
+    zipName: filename,
+    transcriptName: chatTxt,
+    senders: uniqueSenders(parsed.messages),
+    ownerName,
+  });
   attachOrphanMedia(
     parsed.messages,
     entries.map((entry) => entry.fileName),
